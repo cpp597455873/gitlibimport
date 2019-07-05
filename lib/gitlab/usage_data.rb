@@ -159,16 +159,16 @@ module Gitlab
       def jira_usage
         # Jira Cloud does not support custom domains as per https://jira.atlassian.com/browse/CLOUD-6999
         # so we can just check for subdomains of atlassian.net
-        services = count(
-          Service.unscoped.where(type: :JiraService, active: true)
-            .group("CASE WHEN properties LIKE '%.atlassian.net%' THEN 'cloud' ELSE 'server' END"),
-          fallback: Hash.new(-1)
-        )
+        services = Service.unscoped.where(type: :JiraService, active: true).includes(:jira_tracker_data)
+
+        counts = services.group_by do |service|
+          service.jira_tracker_data.url.include?('.atlassian.net') ? :cloud : :server
+        end
 
         {
-          projects_jira_server_active: services['server'] || 0,
-          projects_jira_cloud_active: services['cloud'] || 0,
-          projects_jira_active: services['server'] == -1 ? -1 : services.values.sum
+          projects_jira_server_active: counts[:server]&.count || 0,
+          projects_jira_cloud_active: counts[:cloud]&.count || 0,
+          projects_jira_active: services ? count(services) : -1
         }
       end
 

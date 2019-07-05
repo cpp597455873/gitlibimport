@@ -2,10 +2,14 @@
 
 class IssueTrackerService < Service
   validate :one_issue_tracker, if: :activated?, on: :manual_change
+  validate :validate_data_fields, if: :activated?
+
+  data_field :project_url, :issues_url, :new_issue_url
 
   default_value_for :category, 'issue_tracker'
 
-  before_save :handle_properties
+  before_validation :handle_properties
+  before_validation :set_default_data, on: :create
 
   # Pattern used to extract links from comments
   # Override this method on services that uses different patterns
@@ -31,6 +35,10 @@ class IssueTrackerService < Service
     end
   end
 
+  def validate_data_fields
+    errors.add(:validate_data_fields, 'Data fields are not valid') unless data_fields.valid?
+  end
+
   # this  will be removed as part of https://gitlab.com/gitlab-org/gitlab-ce/issues/63084
   def description
     if description_attribute = read_attribute(:description)
@@ -42,13 +50,41 @@ class IssueTrackerService < Service
     end
   end
 
+#   def initialize(arguments = {})
+#     service_keys = self.class.column_names.map(&:to_sym) + [:project]
+#     data_values = arguments.symbolize_keys.slice!(*service_keys)
+# # binding.pry if caller.find { |c| c.include? 'services_controller' }
+#     super(arguments)
+#
+#     # initialize data fields
+#     data_fields(data_values)
+#   end
+
   def handle_properties
-    properties.slice('title', 'description').each do |key, _|
+    # this has been moved from initialize_properties and should be improved
+    # as part of https://gitlab.com/gitlab-org/gitlab-ce/issues/63084
+    return unless properties
+
+    data_values = properties.slice!('title', 'description')
+    properties.each do |key, _|
       current_value = self.properties.delete(key)
       value = attribute_changed?(key) ? attribute_change(key).last : current_value
 
       write_attribute(key, value)
     end
+
+    updated_properties.each do |key, value|
+      updated_properties[key] = data_values[key]
+    end
+    data_values.reject! { |key| data_fields.changed.include?(key) }
+
+    data_fields.assign_attributes(data_values) if data_values.present?
+
+    self.properties = {}
+  end
+
+  def data_fields(values = {})
+    issue_tracker_data || self.build_issue_tracker_data(values)
   end
 
   def default?
@@ -56,7 +92,7 @@ class IssueTrackerService < Service
   end
 
   def issue_url(iid)
-    self.issues_url.gsub(':id', iid.to_s)
+    issues_url.gsub(':id', iid.to_s)
   end
 
   def issue_tracker_path
@@ -80,25 +116,21 @@ class IssueTrackerService < Service
     ]
   end
 
-  # Initialize with default properties values
-  # or receive a block with custom properties
-  def initialize_properties(&block)
-    return unless properties.nil?
+  def initialize_properties()
+    {}
+  end
 
-    if enabled_in_gitlab_config
-      if block_given?
-        yield
-      else
-        self.properties = {
-          title: issues_tracker['title'],
-          project_url: issues_tracker['project_url'],
-          issues_url: issues_tracker['issues_url'],
-          new_issue_url: issues_tracker['new_issue_url']
-        }
-      end
-    else
-      self.properties = {}
-    end
+  # Initialize with default properties values
+  def set_default_data
+    return unless issues_tracker.present?
+
+    self.title ||= issues_tracker['title']
+
+    return if project_url
+
+    data_fields.project_url = issues_tracker['project_url']
+    data_fields.issues_url = issues_tracker['issues_url']
+    data_fields.new_issue_url = issues_tracker['new_issue_url']
   end
 
   def self.supported_events

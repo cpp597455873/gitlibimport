@@ -13,8 +13,8 @@ describe "Jira", :js do
     before do
       remotelink = double(:remotelink, all: [], build: double(save!: true))
 
-      stub_request(:get, "https://jira.example.com/rest/api/2/issue/JIRA-5")
-      stub_request(:post, "https://jira.example.com/rest/api/2/issue/JIRA-5/comment")
+      stub_request(:get, "https://jira.example.net/rest/api/2/issue/JIRA-5")
+      stub_request(:post, "https://jira.example.net/rest/api/2/issue/JIRA-5/comment")
       allow_any_instance_of(JIRA::Resource::Issue).to receive(:remotelink).and_return(remotelink)
 
       sign_in(user)
@@ -177,9 +177,9 @@ describe "Jira", :js do
     end
 
     if jira_referenced
-      expect(page).to have_link("JIRA-5", href: "https://jira.example.com/browse/JIRA-5")
+      expect(page).to have_link("JIRA-5", href: "https://jira.example.net/browse/JIRA-5")
     else
-      expect(page).not_to have_link("JIRA-5", href: "https://jira.example.com/browse/JIRA-5")
+      expect(page).not_to have_link("JIRA-5", href: "https://jira.example.net/browse/JIRA-5")
     end
 
     expect(page).not_to have_link("#999")

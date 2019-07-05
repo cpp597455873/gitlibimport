@@ -44,12 +44,8 @@ FactoryBot.define do
   factory :jira_service do
     project
     active true
-    properties(
-      url: 'https://jira.example.com',
-      username: 'jira_user',
-      password: 'my-secret-password',
-      project_key: 'jira-key'
-    )
+
+    jira_tracker_data
   end
 
   factory :bugzilla_service do
@@ -77,27 +73,42 @@ FactoryBot.define do
   end
 
   trait :issue_tracker do
-    properties(
-      project_url: 'http://issue-tracker.example.com',
-      issues_url: 'http://issue-tracker.example.com',
-      new_issue_url: 'http://issue-tracker.example.com'
-    )
+    after :build do |service|
+      create(:issue_tracker_data, service: service)
+    end
   end
 
-  factory :jira_cloud_service, class: JiraService do
-    project
-    active true
-    properties(
-      url: 'https://mysite.atlassian.net',
-      username: 'jira_user',
-      password: 'my-secret-password',
-      project_key: 'jira-key'
-    )
+  trait :jira_cloud_service do
+    after(:build) do |service|
+      create(:jira_tracker_data,
+             service: service,
+             url: 'https://mysite.atlassian.net',
+             username: 'jira_user',
+             password: 'my-secret-password'
+            )
+    end
   end
 
   factory :hipchat_service do
     project
     type 'HipchatService'
     token 'test_token'
+  end
+
+  # this is for testing storing values inside properties, which is deprecated and will be removed in
+  # https://gitlab.com/gitlab-org/gitlab-ce/issues/63084
+  trait :without_properties_callback do
+    jira_tracker_data nil
+    issue_tracker_data nil
+
+    after(:build) do
+      IssueTrackerService.skip_callback(:validation, :before, :handle_properties)
+    end
+
+    to_create { |instance| instance.save(validate: false)}
+
+    after(:create) do
+      IssueTrackerService.set_callback(:validation, :before, :handle_properties)
+    end
   end
 end
