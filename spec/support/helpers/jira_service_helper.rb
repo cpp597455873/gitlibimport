@@ -1,5 +1,5 @@
 module JiraServiceHelper
-  JIRA_URL = "http://jira.example.net".freeze
+  JIRA_URL = "https://jira-api.example.com".freeze
   JIRA_API = JIRA_URL + "/rest/api/2"
 
   def jira_service_settings

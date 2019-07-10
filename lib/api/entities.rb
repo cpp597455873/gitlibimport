@@ -1005,7 +1005,11 @@ module API
       expose :job_events
       # Expose serialized properties
       expose :properties do |service, options|
-        service.properties.slice(*service.api_field_names)
+        if service.properties.present?
+          service.properties.slice(*service.api_field_names)
+        else
+          service.data_fields.as_json.slice(*service.api_field_names)
+        end
       end
     end
 

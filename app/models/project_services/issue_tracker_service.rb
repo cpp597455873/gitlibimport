@@ -2,7 +2,6 @@
 
 class IssueTrackerService < Service
   validate :one_issue_tracker, if: :activated?, on: :manual_change
-  validate :validate_data_fields, if: :activated?
 
   data_field :project_url, :issues_url, :new_issue_url
 
@@ -35,10 +34,6 @@ class IssueTrackerService < Service
     end
   end
 
-  def validate_data_fields
-    errors.add(:validate_data_fields, 'Data fields are not valid') unless data_fields.valid?
-  end
-
   # this  will be removed as part of https://gitlab.com/gitlab-org/gitlab-ce/issues/63084
   def description
     if description_attribute = read_attribute(:description)
@@ -49,16 +44,6 @@ class IssueTrackerService < Service
       default_description
     end
   end
-
-#   def initialize(arguments = {})
-#     service_keys = self.class.column_names.map(&:to_sym) + [:project]
-#     data_values = arguments.symbolize_keys.slice!(*service_keys)
-# # binding.pry if caller.find { |c| c.include? 'services_controller' }
-#     super(arguments)
-#
-#     # initialize data fields
-#     data_fields(data_values)
-#   end
 
   def handle_properties
     # this has been moved from initialize_properties and should be improved
@@ -116,7 +101,7 @@ class IssueTrackerService < Service
     ]
   end
 
-  def initialize_properties()
+  def initialize_properties
     {}
   end
 

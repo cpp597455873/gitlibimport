@@ -3,8 +3,8 @@
 FactoryBot.define do
   factory :jira_tracker_data do
     service
-    url 'http://jira.example.com'
-    api_url 'http://jira.example.net'
+    url 'https://jira.example.com'
+    api_url 'https://jira-api.example.com'
     username 'jira_username'
     password 'jira_password'
   end

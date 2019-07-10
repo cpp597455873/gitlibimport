@@ -5,7 +5,9 @@ require 'spec_helper'
 describe Projects::ServicesController do
   let(:project) { create(:project, :repository) }
   let(:user)    { create(:user) }
-  let(:service) { create(:jira_service, project: project) }
+  let(:service) do
+    create(:jira_service, project: project).tap { |service| service.jira_tracker_data.destroy }
+  end
   let(:service_params) { { username: 'username', password: 'password', url: 'http://example.com' } }
 
   before do

@@ -45,7 +45,7 @@ FactoryBot.define do
     project
     active true
 
-    jira_tracker_data
+    after(:build) { |service| create(:jira_tracker_data, service: service) }
   end
 
   factory :bugzilla_service do
@@ -73,9 +73,7 @@ FactoryBot.define do
   end
 
   trait :issue_tracker do
-    after :build do |service|
-      create(:issue_tracker_data, service: service)
-    end
+    after(:build) { |service| create(:issue_tracker_data, service: service) }
   end
 
   trait :jira_cloud_service do
