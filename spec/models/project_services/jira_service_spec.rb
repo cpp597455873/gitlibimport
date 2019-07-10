@@ -251,7 +251,7 @@ describe JiraService do
     context 'when data are stored in properties' do
       let(:properties) { data_params.merge(title: title, description: description) }
       let!(:service) do
-        create(:jira_service, :without_properties_callback, properties: properties)
+        create(:jira_service, :without_properties_callback, properties: properties, create_data: false)
       end
 
       include_examples 'issue tracker fields'
@@ -260,8 +260,7 @@ describe JiraService do
 
     context 'when data are stored in separated fields' do
       let(:service) do
-        create(:jira_service, title: title, description: description, properties: {},
-               jira_tracker_data: create(:jira_tracker_data, data_params.except(:title, :description)))
+        create(:jira_service, data_params.merge(properties: {}))
       end
 
       include_examples 'issue tracker fields'
@@ -271,8 +270,7 @@ describe JiraService do
     context 'when data are stored in both properties and separated fields' do
       let(:properties) { data_params.merge(title: 'wrong title', description: 'wrong description') }
       let(:service) do
-        create(:jira_service, :without_properties_callback, title: title, description: description,
-               properties: properties, jira_tracker_data: create(:jira_tracker_data, data_params.except(:title, :description)))
+        create(:jira_service, :without_properties_callback, data_params.merge(properties: {}))
       end
 
       include_examples 'issue tracker fields'

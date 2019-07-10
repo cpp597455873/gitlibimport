@@ -45,7 +45,22 @@ FactoryBot.define do
     project
     active true
 
-    after(:build) { |service| create(:jira_tracker_data, service: service) }
+    transient do
+      create_data true
+      url 'https://jira.example.com'
+      api_url 'https://jira-api.example.com'
+      username 'jira_username'
+      password 'jira_password'
+      jira_issue_transition_id '56-1'
+    end
+
+    after(:build) do |service, evaluator|
+      if evaluator.create_data
+        create(:jira_tracker_data, service: service,
+          url: evaluator.url, api_url: evaluator.api_url, jira_issue_transition_id: evaluator.jira_issue_transition_id,
+          username: evaluator.username, password: evaluator.password, )
+      end
+    end
   end
 
   factory :bugzilla_service do
@@ -73,7 +88,20 @@ FactoryBot.define do
   end
 
   trait :issue_tracker do
-    after(:build) { |service| create(:issue_tracker_data, service: service) }
+    transient do
+      create_data true
+      project_url 'http://issuetracker.example.com'
+      issues_url 'http://issues.example.com/issues/:id'
+      new_issue_url 'http://new-issue.example.com'
+    end
+
+    after(:build) do |service, evaluator|
+      if evaluator.create_data
+        create(:issue_tracker_data, service: service,
+          project_url: evaluator.project_url, issues_url: evaluator.issues_url, new_issue_url: evaluator.new_issue_url
+        )
+      end
+    end
   end
 
   trait :jira_cloud_service do

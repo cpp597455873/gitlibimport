@@ -251,7 +251,7 @@ class JiraService < IssueTrackerService
       end
 
       log_info("Successfully posted", client_url: client_url)
-      "SUCCESS: Successfully posted to http://jira.example.net."
+      "SUCCESS: Successfully posted to #{client_url}"
     end
   end
 
