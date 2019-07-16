@@ -94,11 +94,11 @@ describe Projects::ServicesController do
 
         def do_put
           put :test, params: {
-                       namespace_id: project.namespace,
-                       project_id: project,
-                       id: 'buildkite',
-                       service: { 'active' => '1', 'push_events' => '1', token: 'token', 'project_url' => 'http://test.com' }
-                     }
+            namespace_id: project.namespace,
+            project_id: project,
+            id: 'buildkite',
+            service: { 'active' => '1', 'push_events' => '1', token: 'token', 'project_url' => 'http://test.com' }
+          }
         end
       end
     end
