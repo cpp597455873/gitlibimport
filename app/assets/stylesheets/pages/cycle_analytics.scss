@@ -41,7 +41,6 @@
       width: 20%;
     }
 
-
     .fa {
       color: $cycle-analytics-light-gray;
 
@@ -201,6 +200,21 @@
       .stage-empty,
       .not-available {
         color: $gl-text-color-secondary;
+      }
+
+      &.stage-ghost {
+        background: transparent;
+        border: dashed 1px $border-color;
+        display: flex;
+        justify-content: center;
+
+        &:hover {
+          font-weight: bold;
+          background: $blue-50;
+          border-color: $blue-300;
+          border-style: solid;
+          box-shadow: inset 4px 0 0 0 $blue-500;
+        }
       }
     }
   }

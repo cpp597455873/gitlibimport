@@ -12,6 +12,7 @@ import stageComponent from './components/stage_component.vue';
 import stageReviewComponent from './components/stage_review_component.vue';
 import stageStagingComponent from './components/stage_staging_component.vue';
 import stageTestComponent from './components/stage_test_component.vue';
+import customStageForm from './components/custom_stage_form.vue';
 import CycleAnalyticsService from './cycle_analytics_service';
 import CycleAnalyticsStore from './cycle_analytics_store';
 
@@ -41,6 +42,7 @@ export default () => {
         import('ee_component/analytics/shared/components/projects_dropdown_filter.vue'),
       DateRangeDropdown: () =>
         import('ee_component/analytics/shared/components/date_range_dropdown.vue'),
+      'custom-stage-form': customStageForm,
     },
     mixins: [filterMixins],
     data() {
@@ -54,6 +56,7 @@ export default () => {
         startDate: 30,
         isOverviewDialogDismissed: Cookies.get(OVERVIEW_DIALOG_COOKIE),
         service: this.createCycleAnalyticsService(cycleAnalyticsEl.dataset.requestPath),
+        isCustomStageForm: false,
       };
     },
     computed: {
@@ -141,6 +144,20 @@ export default () => {
             this.isEmptyStage = true;
             this.isLoadingStage = false;
           });
+      },
+      showAddStageForm() {
+        console.log('cycle_analytics_bundle::showAddStageForm', this);
+        // TODO: should these eventually be moved to actions for a vuex store
+        this.isLoadingStage = true;
+
+        // TODO: do async-y stuff if we need it?
+        // Maybe loading the data, but most likely we can bootstrap that in the form as props
+
+        // TODO: perhaps could be something more like this.activeStage('stage-name') ie loading, empty, custom form etc
+
+        // Should eventually be actions emitted to the vuex store
+        this.isCustomStageForm = true;
+        this.isLoadingStage = false;
       },
       dismissOverviewDialog() {
         this.isOverviewDialogDismissed = true;

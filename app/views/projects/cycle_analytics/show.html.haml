@@ -44,7 +44,7 @@
               %li.median-header
                 %span.stage-name
                   {{ __('Median') }}
-                %i.has-tooltip.fa.fa-question-circle{ "data-placement" => "top", title: _("The value lying at the midpoint of a series of observed values. E.g., between 3, 5, 9, the median is 5. Between 3, 5, 7, 8, the median is (5+7)/2 = 6."), "aria-hidden" => "true" }
+                %i.has-tooltip.fa.fa-question-circle{ "data-placement" => "toxp", title: _("The value lying at the midpoint of a series of observed values. E.g., between 3, 5, 9, the median is 5. Between 3, 5, 7, 8, the median is (5+7)/2 = 6."), "aria-hidden" => "true" }
               %li.event-header
                 %span.stage-name
                   {{ currentStage ? __(currentStage.legend) : __('Related Issues') }}
@@ -68,13 +68,18 @@
                   %template{ "v-else" => true }
                     %span.not-available
                       {{ __('Not available') }}
+              -# TODO: Feature flag
+              %li.stage-nav-item.stage-ghost.rounded{ '@click' => 'showAddStageForm()', }
+                {{ s__("CustomCycleAnalytics|Add a stage") }}
           .section.stage-events
             %template{ "v-if" => "isLoadingStage" }
               = icon("spinner spin")
             %template{ "v-if" => "currentStage && !currentStage.isUserAllowed" }
               = render partial: "no_access"
             %template{ "v-else" => true }
-              %template{ "v-if" => "isEmptyStage && !isLoadingStage" }
+              %template{ "v-if" => "isEmptyStage && !isLoadingStage && !isCustomStageForm" }
                 = render partial: "empty_stage"
               %template{ "v-if" => "state.events.length && !isLoadingStage && !isEmptyStage" }
                 %component{ ":is" => "currentStage.component", ":stage" => "currentStage", ":items" => "state.events" }
+              -# TODO: Feature flag
+              %custom-stage-form{ "v-if" => "isCustomStageForm" }
