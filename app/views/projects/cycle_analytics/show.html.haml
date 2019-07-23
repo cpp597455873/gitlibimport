@@ -78,9 +78,9 @@
             %template{ "v-if" => "currentStage && !currentStage.isUserAllowed" }
               = render partial: "no_access"
             %template{ "v-else" => true }
-              %template{ "v-if" => "isEmptyStage && !isLoadingStage && !isCustomStageForm" }
+              %template{ "v-if" => "isEmptyStage && !isLoadingStage && !addStageForm" }
                 = render partial: "empty_stage"
-              %template{ "v-if" => "state.events.length && !isLoadingStage && !isEmptyStage" }
+              %template{ "v-if" => "state.events.length && !isLoadingStage && !isEmptyStage && !addStageForm" }
                 %component{ ":is" => "currentStage.component", ":stage" => "currentStage", ":items" => "state.events" }
-              -# TODO: Feature flag
-              %custom-stage-form{ "v-if" => "isCustomStageForm" }
+              - if customisable_cycle_analytics
+                %add-stage-form{ "v-if" => "!isLoadingStage && addStageForm" }
