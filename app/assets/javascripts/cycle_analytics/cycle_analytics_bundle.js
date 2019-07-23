@@ -8,7 +8,6 @@ import { __ } from '~/locale';
 import Translate from '../vue_shared/translate';
 import banner from './components/banner.vue';
 // TODO: should the be capitalized?
-import addStageForm from './components/add_stage_form.vue';
 import stageCodeComponent from './components/stage_code_component.vue';
 import stageComponent from './components/stage_component.vue';
 import stageReviewComponent from './components/stage_review_component.vue';
@@ -32,7 +31,6 @@ export default () => {
     components: {
       GlEmptyState,
       banner,
-      addStageForm,
       'stage-issue-component': stageComponent,
       'stage-plan-component': stageComponent,
       'stage-code-component': stageCodeComponent,
@@ -61,7 +59,7 @@ export default () => {
         startDate: 30,
         isOverviewDialogDismissed: Cookies.get(OVERVIEW_DIALOG_COOKIE),
         service: this.createCycleAnalyticsService(cycleAnalyticsEl.dataset.requestPath),
-        isCustomStageForm: false,
+        isStageFormSelected: false,
       };
     },
     computed: {
@@ -77,8 +75,6 @@ export default () => {
       // variable itself can be completely removed.
       // Follow up issue: https://gitlab.com/gitlab-org/gitlab-ce/issues/64490
       if (cycleAnalyticsEl.dataset.requestPath) this.fetchCycleAnalyticsData();
-      // TODO: remove
-      this.addStageForm = true;
     },
     methods: {
       handleError() {
@@ -132,7 +128,7 @@ export default () => {
           return;
         }
 
-        this.isCustomStageForm = false;
+        this.isStageFormSelected = false;
         this.isLoadingStage = true;
         this.store.setStageEvents([], stage);
         this.store.setActiveStage(stage);
@@ -163,7 +159,7 @@ export default () => {
         // TODO: perhaps could be something more like this.activeStage('stage-name') ie loading, empty, custom form etc
 
         // Should eventually be actions emitted to the vuex store
-        this.isCustomStageForm = true;
+        this.isStageFormSelected = true;
         this.isLoadingStage = false;
       },
       dismissOverviewDialog() {

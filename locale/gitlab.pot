@@ -723,6 +723,9 @@ msgstr ""
 msgid "Add reaction"
 msgstr ""
 
+msgid "Add stage"
+msgstr ""
+
 msgid "Add to project"
 msgstr ""
 
@@ -2188,6 +2191,9 @@ msgstr ""
 msgid "Choose visibility level, enable/disable project features (issues, repository, wiki, snippets) and set permissions."
 msgstr ""
 
+msgid "Choose which object types will trigger this stage"
+msgstr ""
+
 msgid "CiStatusLabel|canceled"
 msgstr ""
 
@@ -3555,6 +3561,9 @@ msgstr ""
 msgid "CustomCycleAnalytics|New stage"
 msgstr ""
 
+msgid "CustomCycleAnalytics|Object type"
+msgstr ""
+
 msgid "Customize colors"
 msgstr ""
 
@@ -4284,6 +4293,9 @@ msgid "Enforce DNS rebinding attack protection"
 msgstr ""
 
 msgid "Ensure connectivity is available from the GitLab server to the Prometheus server"
+msgstr ""
+
+msgid "Enter a name for the stage"
 msgstr ""
 
 msgid "Enter at least three characters to search"
@@ -8162,6 +8174,9 @@ msgstr ""
 msgid "Please select a group."
 msgstr ""
 
+msgid "Please select a start event first"
+msgstr ""
+
 msgid "Please select at least one filter to see results"
 msgstr ""
 
@@ -9924,6 +9939,9 @@ msgstr ""
 msgid "Select merge moment"
 msgstr ""
 
+msgid "Select one or more objects"
+msgstr ""
+
 msgid "Select private project"
 msgstr ""
 
@@ -9940,6 +9958,12 @@ msgid "Select projects you want to import."
 msgstr ""
 
 msgid "Select source branch"
+msgstr ""
+
+msgid "Select start event"
+msgstr ""
+
+msgid "Select stop event"
 msgstr ""
 
 msgid "Select target branch"
@@ -10646,6 +10670,9 @@ msgstr ""
 msgid "Start date"
 msgstr ""
 
+msgid "Start event"
+msgstr ""
+
 msgid "Start the Runner!"
 msgstr ""
 
@@ -10686,6 +10713,9 @@ msgid "Stay updated about the performance and health of your environment by conf
 msgstr ""
 
 msgid "Stop environment"
+msgstr ""
+
+msgid "Stop event"
 msgstr ""
 
 msgid "Stop impersonation"

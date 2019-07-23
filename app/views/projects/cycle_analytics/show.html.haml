@@ -71,16 +71,16 @@
                       {{ __('Not available') }}
               -# add stage button will eventually be a License.feature_available? check, default to false
               - if customisable_cycle_analytics
-                %add-stage-button{ '@showform' => 'showAddStageForm', ":is-active" => 'isCustomStageForm' }
+                %add-stage-button{ '@showform' => 'showAddStageForm', ":is-active" => 'isStageFormSelected' }
           .section.stage-events
             %template{ "v-if" => "isLoadingStage" }
               = icon("spinner spin")
             %template{ "v-if" => "currentStage && !currentStage.isUserAllowed" }
               = render partial: "no_access"
             %template{ "v-else" => true }
-              %template{ "v-if" => "isEmptyStage && !isLoadingStage && !addStageForm" }
+              %template{ "v-if" => "isEmptyStage && !isLoadingStage && !isStageFormSelected" }
                 = render partial: "empty_stage"
-              %template{ "v-if" => "state.events.length && !isLoadingStage && !isEmptyStage && !addStageForm" }
+              %template{ "v-if" => "state.events.length && !isLoadingStage && !isEmptyStage && !isStageFormSelected" }
                 %component{ ":is" => "currentStage.component", ":stage" => "currentStage", ":items" => "state.events" }
               - if customisable_cycle_analytics
-                %add-stage-form{ "v-if" => "!isLoadingStage && addStageForm" }
+                %custom-stage-form{ "v-if" => "!isLoadingStage && isStageFormSelected" }
