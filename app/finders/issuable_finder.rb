@@ -48,8 +48,9 @@ class IssuableFinder
 
   attr_accessor :current_user, :params
 
-  def self.scalar_params
-    @scalar_params ||= %i[
+  class << self
+    def scalar_params
+      @scalar_params ||= %i[
       assignee_id
       assignee_username
       author_id
@@ -60,14 +61,27 @@ class IssuableFinder
       search
       in
     ]
-  end
+    end
 
-  def self.array_params
-    @array_params ||= { label_name: [], assignee_username: [] }
-  end
+    def negatable_scalar_params
+      @negatable_scalar_params ||= scalar_params + %i[project_id group_id]
+    end
 
-  def self.valid_params
-    @valid_params ||= scalar_params + [array_params]
+    def array_params
+      @array_params ||= { label_name: [], assignee_username: [] }
+    end
+
+    def negatable_array_params
+      @negatable_array_params ||= array_params.keys.append(:iids)
+    end
+
+    def negatable_params
+      @negatable_params ||= negatable_scalar_params + negatable_array_params
+    end
+
+    def valid_params
+      @valid_params ||= scalar_params + [array_params] + [{ not: [] }]
+    end
   end
 
   def initialize(current_user, params = {})
@@ -78,6 +92,9 @@ class IssuableFinder
   def execute
     items = init_collection
     items = filter_items(items)
+
+    # Let's see if we have to negate anything
+    items = by_negation(items)
 
     # This has to be last as we use a CTE as an optimization fence
     # for counts by passing the force_cte param and enabling the
@@ -350,6 +367,29 @@ class IssuableFinder
   def count_key(value)
     Array(value).last.to_sym
   end
+
+  # Negates all params found in `negatable_params`
+  # rubocop: disable CodeReuse/ActiveRecord
+  def by_negation(items)
+    return items unless params[:not].present?
+
+    params[:not].each do |(key, value)|
+      # These aren't negatable params themselves, but rather help other searches, so we skip them. They
+      # will be added into all the NOT searches.
+      next if %i[include_subgroups in].include?(key.to_sym)
+      next unless self.class.negatable_params.include?(key.to_sym)
+
+      not_helpers = params.slice(:include_subgroups, :in).merge(params[:not].slice(:include_subgroups, :in))
+
+      not_params = { key => value }.with_indifferent_access.merge(not_helpers)
+      items_to_negate = self.class.new(current_user, not_params).execute
+
+      items = items.where.not(id: items_to_negate)
+    end
+
+    items
+  end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   # rubocop: disable CodeReuse/ActiveRecord
   def by_scope(items)
