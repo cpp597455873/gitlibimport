@@ -34,5 +34,17 @@ namespace :gitlab do
         logger.error("Failed to transfer artifacts of #{build.id} with error: #{e.message}")
       end
     end
+
+    task migrate_to_local: :environment do
+      logger = Logger.new(STDOUT)
+      logger.info('Starting transfer of job traces')
+
+      Ci::Build.joins(:project).with_archived_trace_stored_remotely.find_each(batch_size: 10) do |build|
+        build.job_artifacts_trace.file.migrate!(ObjectStorage::Store::LOCAL)
+        logger.info("Transferred job trace of #{build.id} to local storage")
+      rescue => e
+        logger.error("Failed to transfer artifacts of #{build.id} with error: #{e.message}")
+      end
+    end
   end
 end

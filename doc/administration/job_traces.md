@@ -99,6 +99,19 @@ If job traces have already been archived into local storage, and you want to mig
    gitlab-rake gitlab:traces:migrate
    ```
 
+## How to migrate archived job traces from object storage to local storage
+
+If job traces have already been archived into object storage, and you want to migrate those traces back to local storage, please follow the instruction below.
+Please note that you cannot migrate traces on their own. All job artifacts must be migrated and object storage must be disabled, or new traces will be uploaded automatically.
+
+1. Ensure [you have already migrated Job Artifacts](job_artifacts.md#migrating-from-object-storage-to-local-storage), but keep `object_storage` enabled.
+1. Execute the following command
+
+   ```bash
+   gitlab-rake gitlab:traces:migrate_to_local
+   ```
+1. Disable [Object storage integration for Job Artifacts](job_artifacts.md#object-storage-settings)
+
 ## How to remove job traces
 
 There isn't a way to automatically expire old job logs, but it's safe to remove

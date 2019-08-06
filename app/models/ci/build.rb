@@ -110,10 +110,14 @@ module Ci
         .eager_load_job_artifacts
     end
 
+    scope :with_project, -> { joins(:project) }
+
     scope :eager_load_job_artifacts, -> { includes(:job_artifacts) }
 
     scope :with_artifacts_stored_locally, -> { with_existing_job_artifacts(Ci::JobArtifact.archive.with_files_stored_locally) }
+    scope :with_artifacts_stored_remotely, -> { with_existing_job_artifacts(Ci::JobArtifact.archive.with_files_stored_remotely) }
     scope :with_archived_trace_stored_locally, -> { with_existing_job_artifacts(Ci::JobArtifact.trace.with_files_stored_locally) }
+    scope :with_archived_trace_stored_remotely, -> { with_existing_job_artifacts(Ci::JobArtifact.trace.with_files_stored_remotely) }
     scope :with_artifacts_not_expired, ->() { with_artifacts_archive.where('artifacts_expire_at IS NULL OR artifacts_expire_at > ?', Time.now) }
     scope :with_expired_artifacts, ->() { with_artifacts_archive.where('artifacts_expire_at < ?', Time.now) }
     scope :last_month, ->() { where('created_at > ?', Date.today - 1.month) }

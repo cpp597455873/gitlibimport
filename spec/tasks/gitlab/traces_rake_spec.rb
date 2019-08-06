@@ -110,4 +110,44 @@ describe 'gitlab:traces rake tasks' do
       end
     end
   end
+
+  describe 'gitlab:traces:migrate_to_local' do
+    before do
+      stub_artifacts_object_storage(enabled: true)
+    end
+
+    subject { run_rake_task('gitlab:traces:migrate_to_local') }
+
+    let!(:job_trace) { create(:ci_job_artifact, :trace, file_store: store) }
+
+    context 'when local storage is used' do
+      let(:store) { ObjectStorage::Store::LOCAL }
+
+      it "file stays on local storage" do
+        subject
+
+        expect(job_trace.reload.file_store).to eq(ObjectStorage::Store::LOCAL)
+      end
+
+      context 'and job does not have file store defined' do
+        let(:store) { nil }
+
+        it "stays in local storage" do
+          subject
+
+          expect(job_trace.reload.file_store).to eq(ObjectStorage::Store::LOCAL)
+        end
+      end
+    end
+
+    context 'when remote storage is used' do
+      let(:store) { ObjectStorage::Store::REMOTE }
+
+      it "migrates file to local storage" do
+        subject
+
+        expect(job_trace.reload.file_store).to eq(ObjectStorage::Store::LOCAL)
+      end
+    end
+  end
 end

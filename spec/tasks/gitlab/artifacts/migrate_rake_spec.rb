@@ -11,9 +11,9 @@ describe 'gitlab:artifacts namespace rake task' do
     stub_artifacts_object_storage(enabled: object_storage_enabled)
   end
 
-  subject { run_rake_task('gitlab:artifacts:migrate') }
+  describe 'gitlab:artifacts:migrate' do
+    subject { run_rake_task('gitlab:artifacts:migrate') }
 
-  context 'job artifacts' do
     let!(:artifact) { create(:ci_job_artifact, :archive, file_store: store) }
 
     context 'when local storage is used' do
@@ -57,6 +57,36 @@ describe 'gitlab:artifacts namespace rake task' do
         subject
 
         expect(artifact.reload.file_store).to eq(ObjectStorage::Store::REMOTE)
+      end
+    end
+  end
+
+  describe 'gitlab:artifacts:migrate_to_local' do
+    let(:object_storage_enabled) { true }
+
+    subject { run_rake_task('gitlab:artifacts:migrate_to_local') }
+
+    let!(:artifact) { create(:ci_job_artifact, :archive, file_store: store) }
+
+    context 'when remote storage is used' do
+      let(:store) { ObjectStorage::Store::REMOTE }
+
+      context 'and job has remote file store defined' do
+        it "migrates file to local storage" do
+          subject
+
+          expect(artifact.reload.file_store).to eq(ObjectStorage::Store::LOCAL)
+        end
+      end
+    end
+
+    context 'when local storage is used' do
+      let(:store) { ObjectStorage::Store::LOCAL }
+
+      it 'file stays on local storage' do
+        subject
+
+        expect(artifact.reload.file_store).to eq(ObjectStorage::Store::LOCAL)
       end
     end
   end
