@@ -22,7 +22,6 @@ export default {
           :key="stage.name"
           :title="capitalizeStageName(stage.name)"
           :groups="stage.groups"
-          :stage-connector-class="stageConnectorClass(index, stage)"
           :is-first-column="isFirstColumn(index)"
           :action="stage.status.action"
           @refreshPipelineGraph="refreshPipelineGraph"
