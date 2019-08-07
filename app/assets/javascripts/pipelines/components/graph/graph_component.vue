@@ -15,7 +15,8 @@ export default {
   mixins: [GraphMixin],
   data() {
     return {
-      leftPadding: 0,
+      graphLeftPadding: 0,
+      graphRightPadding: 0,
     };
   },
   beforeDestroy() {
@@ -26,11 +27,11 @@ export default {
     }
   },
   created() {
-    debouncedResize = debounceByAnimationFrame(this.setLeftPadding);
+    debouncedResize = debounceByAnimationFrame(this.setGraphPadding);
     window.addEventListener('resize', debouncedResize);
   },
   mounted() {
-    this.setLeftPadding();
+    this.setGraphPadding();
 
     sidebarMutationObserver = new MutationObserver(this.handleLayoutChange);
     sidebarMutationObserver.observe(document.querySelector('.layout-page'), {
@@ -40,14 +41,17 @@ export default {
     });
   },
   methods: {
-    setLeftPadding() {
+    setGraphPadding() {
       const container = document.querySelector('.content .container-limited');
       if (!container) return;
-      this.leftPadding = container.offsetLeft;
+
+      this.graphLeftPadding = container.offsetLeft;
+      this.graphRightPadding =
+        window.innerWidth - container.offsetLeft - container.offsetWidth + 16;
     },
     handleLayoutChange() {
       // wait until animations finish, then recalculate padding
-      window.setTimeout(this.setLeftPadding, 300);
+      window.setTimeout(this.setGraphPadding, 300);
     },
   },
 };
@@ -55,7 +59,12 @@ export default {
 <template>
   <div class="build-content middle-block js-pipeline-graph">
     <div class="pipeline-visualization pipeline-graph pipeline-tab-content">
-      <div :style="{ paddingLeft: `${leftPadding}px` }">
+      <div
+        :style="{
+          paddingLeft: `${graphLeftPadding}px`,
+          paddingRight: `${graphRightPadding}px`,
+        }"
+      >
         <div v-if="isLoading" class="m-auto"><gl-loading-icon :size="3" /></div>
 
         <ul v-if="!isLoading" class="stage-column-list">
