@@ -11,7 +11,7 @@ export default {
 <template>
   <li
     :class="{ active: isActive }"
-    class="stage-nav-item stage-ghost rounded"
+    class="stage-nav-item stage-ghost rounded bg-transparent d-flex justify-content-center"
     @click="$emit('showform')"
   >
     {{ s__('CustomCycleAnalytics|Add a stage') }}

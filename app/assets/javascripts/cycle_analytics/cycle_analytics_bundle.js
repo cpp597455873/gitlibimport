@@ -149,7 +149,6 @@ export default () => {
           });
       },
       showAddStageForm() {
-        console.log('cycle_analytics_bundle::showAddStageForm', this);
         // TODO: should these eventually be moved to actions for a vuex store
         this.isLoadingStage = true;
 

@@ -203,16 +203,13 @@
       }
 
       &.stage-ghost {
-        background: transparent;
         border: dashed 1px $border-color;
-        display: flex;
-        justify-content: center;
 
-        &:hover, &.active {
+        &:hover,
+        &.active {
           font-weight: bold;
           background: $blue-50;
-          border-color: $blue-300;
-          border-style: solid;
+          border-color: solid 1px $blue-300;
           box-shadow: inset 4px 0 0 0 $blue-500;
         }
       }
