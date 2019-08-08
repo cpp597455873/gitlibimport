@@ -13,6 +13,7 @@ import stageReviewComponent from './components/stage_review_component.vue';
 import stageStagingComponent from './components/stage_staging_component.vue';
 import stageTestComponent from './components/stage_test_component.vue';
 import customStageForm from './components/custom_stage_form.vue';
+import addStageButton from './components/add_stage_button.vue';
 import CycleAnalyticsService from './cycle_analytics_service';
 import CycleAnalyticsStore from './cycle_analytics_store';
 
@@ -43,6 +44,7 @@ export default () => {
       DateRangeDropdown: () =>
         import('ee_component/analytics/shared/components/date_range_dropdown.vue'),
       'custom-stage-form': customStageForm,
+      'add-stage-button': addStageButton,
     },
     mixins: [filterMixins],
     data() {
@@ -125,6 +127,7 @@ export default () => {
           return;
         }
 
+        this.isCustomStageForm = false;
         this.isLoadingStage = true;
         this.store.setStageEvents([], stage);
         this.store.setActiveStage(stage);
@@ -152,7 +155,7 @@ export default () => {
 
         // TODO: do async-y stuff if we need it?
         // Maybe loading the data, but most likely we can bootstrap that in the form as props
-
+        this.store.deactivateAllStages();
         // TODO: perhaps could be something more like this.activeStage('stage-name') ie loading, empty, custom form etc
 
         // Should eventually be actions emitted to the vuex store

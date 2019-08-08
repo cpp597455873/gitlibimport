@@ -69,8 +69,7 @@
                     %span.not-available
                       {{ __('Not available') }}
               -# TODO: Feature flag
-              %li.stage-nav-item.stage-ghost.rounded{ '@click' => 'showAddStageForm()', }
-                {{ s__("CustomCycleAnalytics|Add a stage") }}
+              %add-stage-button{ '@showform' => 'showAddStageForm', ":is-active" => 'isCustomStageForm' }
           .section.stage-events
             %template{ "v-if" => "isLoadingStage" }
               = icon("spinner spin")
