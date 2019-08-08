@@ -1,5 +1,6 @@
 - @no_container = true
 - page_title "Cycle Analytics"
+- customisable_cycle_analytics = Feature.enabled?(:customisable_cycle_analytics_form)
 
 #cycle-analytics{ class: container_class, "v-cloak" => "true", data: { request_path: project_cycle_analytics_path(@project) } }
   - if @cycle_analytics_no_data
@@ -68,8 +69,9 @@
                   %template{ "v-else" => true }
                     %span.not-available
                       {{ __('Not available') }}
-              -# TODO: Feature flag
-              %add-stage-button{ '@showform' => 'showAddStageForm', ":is-active" => 'isCustomStageForm' }
+              -# add stage button will eventually be a License.feature_available? check, default to false
+              - if customisable_cycle_analytics
+                %add-stage-button{ '@showform' => 'showAddStageForm', ":is-active" => 'isCustomStageForm' }
           .section.stage-events
             %template{ "v-if" => "isLoadingStage" }
               = icon("spinner spin")
