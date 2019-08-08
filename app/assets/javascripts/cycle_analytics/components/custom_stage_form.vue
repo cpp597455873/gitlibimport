@@ -5,6 +5,6 @@ export default {
 </script>
 <template>
   <div class="ml-3">
-    <h2>{{ 'Form' }}</h2>
+    <h2>{{ s__('CustomCycleAnalytics|New stage') }}</h2>
   </div>
 </template>
