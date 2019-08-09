@@ -1,5 +1,5 @@
 <script>
-import { __ } from '~/locale';
+import { s__ } from '~/locale';
 import { GlButton, GlFormGroup, GlFormInput, GlFormSelect } from '@gitlab/ui';
 
 export default {
@@ -33,13 +33,13 @@ export default {
   },
   computed: {
     startEventOptions() {
-      return [{ value: null, text: __('Select start event') }];
+      return [{ value: null, text: s__('CustomCycleAnalytics|Select start event') }];
     },
     stopEventOptions() {
-      return [{ value: null, text: __('Select stop event') }];
+      return [{ value: null, text: s__('CustomCycleAnalytics|Select stop event') }];
     },
     objectTypeOptions() {
-      return [{ value: null, text: __('Select one or more objects') }];
+      return [{ value: null, text: s__('CustomCycleAnalytics|Select one or more objects') }];
     },
   },
 };
@@ -49,15 +49,14 @@ export default {
     <div class="mb-1">
       <h4>{{ s__('CustomCycleAnalytics|New stage') }}</h4>
     </div>
-    <gl-form-group>
+    <gl-form-group :label="s__('CustomCycleAnalytics|Name')">
       <gl-form-input
         v-model="name"
         class="form-control"
         type="text"
         value=""
         name="add-stage-name"
-        :label="__('Name')"
-        :placeholder="__('Enter a name for the stage')"
+        :placeholder="s__('CustomCycleAnalytics|Enter a name for the stage')"
         required
       />
     </gl-form-group>
@@ -65,39 +64,37 @@ export default {
         TODO: Double check if we need this 
         - Does this filter the list of start / stop events.... 🤔
       -->
-    <gl-form-group>
+    <gl-form-group
+      :label="s__('CustomCycleAnalytics|Object type')"
+      :description="s__('CustomCycleAnalytics|Choose which object types will trigger this stage')"
+    >
       <gl-form-select
         v-model="objectType"
-        :label="__('CustomCycleAnalytics|Object type')"
         name="add-stage-object-type"
         :required="true"
         :options="objectTypeOptions"
       />
-
-      <p class="form-text text-muted">
-        {{ __('Choose which object types will trigger this stage') }}
-      </p>
     </gl-form-group>
-    <gl-form-group>
+    <gl-form-group :label="s__('CustomCycleAnalytics|Start event')">
       <gl-form-select
         v-model="startEvent"
-        :label="__('Start event')"
         name="add-stage-start-event"
         :required="true"
         :options="startEventOptions"
       />
     </gl-form-group>
-    <gl-form-group>
+    <gl-form-group
+      :label="s__('CustomCycleAnalytics|Stop event')"
+      :description="s__('CustomCycleAnalytics|Please select a start event first')"
+    >
       <gl-form-select
         v-model="stopEvent"
-        :label="__('Stop event')"
         name="add-stage-stop-event"
         :options="stopEventOptions"
         :required="true"
       />
-      <p class="form-text text-muted">{{ __('Please select a start event first') }}</p>
     </gl-form-group>
-    <div class="add-stage-form-actions clearfix">
+    <div class="add-stage-form-actions">
       <!-- 
           TODO: what does the cancel button do?
           - Just hide the form?
@@ -112,7 +109,7 @@ export default {
         class="js-add-stage btn btn-success"
         @click="handleSave()"
       >
-        {{ __('Add stage') }}
+        {{ s__('CustomCycleAnalytics|Add stage') }}
       </button>
     </div>
   </form>
