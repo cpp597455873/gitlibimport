@@ -92,7 +92,7 @@ describe Ci::CreatePipelineService do
         end
 
         context 'when the head pipeline sha equals merge request sha' do
-          it 'updates head pipeline of each merge request' do
+          it 'updates head pipeline of each merge request', :sidekiq_inline_tech_debt do
             merge_request_1
             merge_request_2
 
@@ -135,7 +135,7 @@ describe Ci::CreatePipelineService do
           let!(:project) { fork_project(target_project, nil, repository: true) }
           let!(:target_project) { create(:project, :repository) }
 
-          it 'updates head pipeline for merge request' do
+          it 'updates head pipeline for merge request', :sidekiq_inline_tech_debt do
             merge_request = create(:merge_request, source_branch: 'feature',
                                                    target_branch: "master",
                                                    source_project: project,
@@ -167,7 +167,7 @@ describe Ci::CreatePipelineService do
             stub_ci_pipeline_yaml_file('some invalid syntax')
           end
 
-          it 'updates merge request head pipeline reference' do
+          it 'updates merge request head pipeline reference', :sidekiq_inline_tech_debt do
             merge_request = create(:merge_request, source_branch: 'master',
                                                    target_branch: 'feature',
                                                    source_project: project)
@@ -187,7 +187,7 @@ describe Ci::CreatePipelineService do
               .and_return('some commit [ci skip]')
           end
 
-          it 'updates merge request head pipeline' do
+          it 'updates merge request head pipeline', :sidekiq_inline_tech_debt do
             merge_request = create(:merge_request, source_branch: 'master',
                                                    target_branch: 'feature',
                                                    source_project: project)
@@ -213,7 +213,7 @@ describe Ci::CreatePipelineService do
           expect(pipeline.reload).to have_attributes(status: 'pending', auto_canceled_by_id: nil)
         end
 
-        it 'auto cancel pending non-HEAD pipelines' do
+        it 'auto cancel pending non-HEAD pipelines', :sidekiq_inline_tech_debt do
           pipeline_on_previous_commit
           pipeline
 
@@ -227,7 +227,7 @@ describe Ci::CreatePipelineService do
           expect(pipeline_on_previous_commit.reload).to have_attributes(status: 'running', auto_canceled_by_id: nil)
         end
 
-        it 'cancel created outdated pipelines' do
+        it 'cancel created outdated pipelines', :sidekiq_inline_tech_debt do
           pipeline_on_previous_commit.update(status: 'created')
           pipeline
 
@@ -876,7 +876,7 @@ describe Ci::CreatePipelineService do
               let!(:project) { fork_project(target_project, nil, repository: true) }
               let!(:target_project) { create(:project, :repository) }
 
-              it 'creates a legacy detached merge request pipeline in the forked project' do
+              it 'creates a legacy detached merge request pipeline in the forked project', :sidekiq_inline_tech_debt do
                 expect(pipeline).to be_persisted
                 expect(project.ci_pipelines).to eq([pipeline])
                 expect(target_project.ci_pipelines).to be_empty

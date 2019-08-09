@@ -45,7 +45,7 @@ describe GroupsController do
 
       it { is_expected.to render_template('groups/show') }
 
-      it 'assigns events for all the projects in the group' do
+      it 'assigns events for all the projects in the group', :sidekiq_inline_tech_debt do
         subject
         expect(assigns(:events)).to contain_exactly(event)
       end
@@ -125,7 +125,7 @@ describe GroupsController do
     end
 
     context 'as json' do
-      it 'includes all projects from groups and subgroups in event feed' do
+      it 'includes all projects from groups and subgroups in event feed', :sidekiq_inline_tech_debt do
         2.times do
           project = create(:project, group: group)
           create(:event, project: project)
@@ -267,7 +267,7 @@ describe GroupsController do
       sign_in(user)
     end
 
-    context 'sorting by votes' do
+    context 'sorting by votes', :sidekiq_inline_tech_debt do
       it 'sorts most popular issues' do
         get :issues, params: { id: group.to_param, sort: 'upvotes_desc' }
         expect(assigns(:issues)).to eq [issue_2, issue_1]
@@ -279,7 +279,7 @@ describe GroupsController do
       end
     end
 
-    context 'searching' do
+    context 'searching', :sidekiq_inline_tech_debt do
       before do
         stub_feature_flags(attempt_group_search_optimizations: true)
       end
@@ -316,7 +316,7 @@ describe GroupsController do
       sign_in(user)
     end
 
-    context 'sorting by votes' do
+    context 'sorting by votes', :sidekiq_inline_tech_debt do
       it 'sorts most popular merge requests' do
         get :merge_requests, params: { id: group.to_param, sort: 'upvotes_desc' }
         expect(assigns(:merge_requests)).to eq [merge_request_2, merge_request_1]
