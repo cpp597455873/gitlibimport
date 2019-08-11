@@ -83,4 +83,5 @@
               %template{ "v-if" => "state.events.length && !isLoadingStage && !isEmptyStage && !isStageFormSelected" }
                 %component{ ":is" => "currentStage.component", ":stage" => "currentStage", ":items" => "state.events" }
               - if customisable_cycle_analytics
+                -# %custom-stage-form{ "v-if" => "!isLoadingStage && isStageFormSelected", ":events" => "state.events" }
                 %custom-stage-form{ "v-if" => "!isLoadingStage && isStageFormSelected" }

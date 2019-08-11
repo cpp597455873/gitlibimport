@@ -2,6 +2,23 @@
 import { s__ } from '~/locale';
 import { GlButton, GlFormGroup, GlFormInput, GlFormSelect } from '@gitlab/ui';
 
+const isStartEvent = ev => ev && ev.can_be_start_event;
+const eventToOption = ({ name: text = '', identifier: value = null }) => ({
+  text,
+  value,
+});
+
+const getAllowedStopEvents = (events = [], targetIdentifier = null) => {
+  if (!targetIdentifier || !events.length) return [];
+  const st = events.find(({ identifier }) => identifier === targetIdentifier);
+  return st.allowed_end_events;
+};
+
+const eventsByIdentifier = (events = [], targetIdentifier = []) => {
+  if (!targetIdentifier.length || !events.length) return [];
+  return events.filter(({ identifier }) => targetIdentifier.indexOf(identifier) > -1);
+};
+
 export default {
   components: {
     GlButton,
@@ -10,6 +27,10 @@ export default {
     GlFormSelect,
   },
   props: {
+    events: {
+      type: Array,
+      required: true,
+    },
     // name: {
     //   type: String,
     //   default: null,
@@ -29,33 +50,44 @@ export default {
   },
   data() {
     return {
-      // objectType: null,
-      name: '',
-      startEvent: '',
-      startEventLabel: '',
-      stopEvent: '',
-      stopEventLabel: '',
+      fields: {
+        // objectType: null,
+        name: '',
+        startEvent: '',
+        startEventLabel: '',
+        stopEvent: '',
+        stopEventLabel: '',
+      },
     };
   },
   computed: {
-    startEventOptions() {
-      return [{ value: null, text: s__('CustomCycleAnalytics|Select start event') }];
-    },
     stopEventOptions() {
-      return [{ value: null, text: s__('CustomCycleAnalytics|Select stop event') }];
+      const stopEvents = getAllowedStopEvents(this.events, this.fields.startEvent);
+      return [
+        { value: null, text: s__('CustomCycleAnalytics|Select stop event') },
+        ...eventsByIdentifier(this.events, stopEvents).map(eventToOption),
+      ];
     },
-    // objectTypeOptions() {
-    //   return [{ value: null, text: s__('CustomCycleAnalytics|Select one or more objects') }];
-    // },
+    startEventOptions() {
+      return [
+        { value: null, text: s__('CustomCycleAnalytics|Select start event') },
+        ...this.events.filter(isStartEvent).map(eventToOption),
+      ];
+    },
+    hasStartEvent() {
+      return this.fields.startEvent;
+    },
     // startEventRequiresLabel() {},
     // stopEventRequiresLabel() {},
     isComplete() {
-      return this.startEvent && this.stopEvent;
+      // TODO: need to factor in label field
+      const requiredFields = [this.fields.startEvent, this.fields.stopEvent, this.fields.name];
+      return requiredFields.every(fieldValue => fieldValue && fieldValue.length > 0);
     },
   },
   methods: {
     handleSave() {
-      this.$emit('submit');
+      this.$emit('submit', this.fields);
     },
   },
 };
@@ -67,7 +99,7 @@ export default {
     </div>
     <gl-form-group :label="s__('CustomCycleAnalytics|Name')">
       <gl-form-input
-        v-model="name"
+        v-model="fields.name"
         class="form-control"
         type="text"
         value=""
@@ -76,24 +108,9 @@ export default {
         required
       />
     </gl-form-group>
-    <!-- 
-        TODO: Double check if we need this 
-        - Does this filter the list of start / stop events.... 🤔
-      -->
-    <!-- <gl-form-group
-      :label="s__('CustomCycleAnalytics|Object type')"
-      :description="s__('CustomCycleAnalytics|Choose which object types will trigger this stage')"
-    >
-      <gl-form-select
-        v-model="objectType"
-        name="add-stage-object-type"
-        :required="true"
-        :options="objectTypeOptions"
-      />
-    </gl-form-group> -->
     <gl-form-group :label="s__('CustomCycleAnalytics|Start event')">
       <gl-form-select
-        v-model="startEvent"
+        v-model="fields.startEvent"
         name="add-stage-start-event"
         :required="true"
         :options="startEventOptions"
@@ -104,10 +121,11 @@ export default {
       :description="s__('CustomCycleAnalytics|Please select a start event first')"
     >
       <gl-form-select
-        v-model="stopEvent"
+        v-model="fields.stopEvent"
         name="add-stage-stop-event"
         :options="stopEventOptions"
         :required="true"
+        :disabled="!hasStartEvent"
       />
     </gl-form-group>
     <div class="add-stage-form-actions">
