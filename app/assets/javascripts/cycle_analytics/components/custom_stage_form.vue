@@ -10,26 +10,32 @@ export default {
     GlFormSelect,
   },
   props: {
-    name: {
-      type: String,
-      default: null,
-    },
-    objectType: {
-      type: String,
-      default: null,
-    },
-    startEvent: {
-      type: String,
-      default: null,
-    },
-    stopEvent: {
-      type: String,
-      default: null,
-    },
-    isComplete: {
-      type: Boolean,
-      default: false,
-    },
+    // name: {
+    //   type: String,
+    //   default: null,
+    // },
+    // objectType: {
+    //   type: String,
+    //   default: null,
+    // },
+    // startEvent: {
+    //   type: String,
+    //   default: null,
+    // },
+    // stopEvent: {
+    //   type: String,
+    //   default: null,
+    // },
+  },
+  data() {
+    return {
+      // objectType: null,
+      name: '',
+      startEvent: '',
+      startEventLabel: '',
+      stopEvent: '',
+      stopEventLabel: '',
+    };
   },
   computed: {
     startEventOptions() {
@@ -38,8 +44,18 @@ export default {
     stopEventOptions() {
       return [{ value: null, text: s__('CustomCycleAnalytics|Select stop event') }];
     },
-    objectTypeOptions() {
-      return [{ value: null, text: s__('CustomCycleAnalytics|Select one or more objects') }];
+    // objectTypeOptions() {
+    //   return [{ value: null, text: s__('CustomCycleAnalytics|Select one or more objects') }];
+    // },
+    // startEventRequiresLabel() {},
+    // stopEventRequiresLabel() {},
+    isComplete() {
+      return this.startEvent && this.stopEvent;
+    },
+  },
+  methods: {
+    handleSave() {
+      this.$emit('submit');
     },
   },
 };
@@ -64,7 +80,7 @@ export default {
         TODO: Double check if we need this 
         - Does this filter the list of start / stop events.... 🤔
       -->
-    <gl-form-group
+    <!-- <gl-form-group
       :label="s__('CustomCycleAnalytics|Object type')"
       :description="s__('CustomCycleAnalytics|Choose which object types will trigger this stage')"
     >
@@ -74,7 +90,7 @@ export default {
         :required="true"
         :options="objectTypeOptions"
       />
-    </gl-form-group>
+    </gl-form-group> -->
     <gl-form-group :label="s__('CustomCycleAnalytics|Start event')">
       <gl-form-select
         v-model="startEvent"
@@ -107,7 +123,7 @@ export default {
         :disabled="!isComplete"
         type="button"
         class="js-add-stage btn btn-success"
-        @click="handleSave()"
+        @click="handleSave"
       >
         {{ s__('CustomCycleAnalytics|Add stage') }}
       </button>
