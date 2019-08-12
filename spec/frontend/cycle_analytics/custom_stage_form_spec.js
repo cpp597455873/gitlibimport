@@ -1,9 +1,12 @@
 import Vue from 'vue';
 import { mount, shallowMount } from '@vue/test-utils';
 import CustomStageForm from '~/cycle_analytics/components/custom_stage_form.vue';
-import data from './cycle_analytics.json';
+import mockData from './cycle_analytics.json';
 
-const { events } = data;
+const {
+  apiResponse: { events },
+  rawEvents,
+} = mockData;
 const startEvents = events.filter(ev => ev.can_be_start_event);
 const stopEvents = events.filter(ev => !ev.can_be_start_event);
 
@@ -27,6 +30,14 @@ describe('CustomStageForm', () => {
     stopEvent: '[name="add-stage-stop-event"]',
     submit: '.js-add-stage',
   };
+
+  function selectDropdownOption(_wrapper, dropdown, index) {
+    _wrapper
+      .find(dropdown)
+      .findAll('option')
+      .at(index)
+      .setSelected();
+  }
 
   describe('Empty form', () => {
     beforeEach(() => {
@@ -89,36 +100,7 @@ describe('CustomStageForm', () => {
       beforeEach(() => {
         wrapper = createComponent(
           {
-            events: [
-              {
-                name: 'Issue created',
-                identifier: 'issue_created',
-                type: 'simple',
-                can_be_start_event: true,
-                allowed_end_events: ['issue_closed', 'issue_merged'],
-              },
-              {
-                name: 'Merge request closed',
-                identifier: 'merge_request_closed',
-                type: 'simple',
-                can_be_start_event: false,
-                allowed_end_events: [],
-              },
-              {
-                name: 'Issue closed',
-                identifier: 'issue_closed',
-                type: 'simple',
-                can_be_start_event: false,
-                allowed_end_events: [],
-              },
-              {
-                name: 'Issue merged',
-                identifier: 'issue_merged',
-                type: 'simple',
-                can_be_start_event: false,
-                allowed_end_events: [],
-              },
-            ],
+            events: rawEvents,
           },
           false,
         );
@@ -134,11 +116,9 @@ describe('CustomStageForm', () => {
       it('will update the list of stop events when a start event is changed', () => {
         let stopOptions = wrapper.find(sel.stopEvent).findAll('option');
         expect(stopOptions.length).toBe(1);
-        wrapper
-          .find(sel.startEvent)
-          .findAll('option')
-          .at(1)
-          .setSelected();
+
+        selectDropdownOption(wrapper, sel.startEvent, 1);
+
         Vue.nextTick(() => {
           stopOptions = wrapper.find(sel.stopEvent).findAll('option');
           expect(stopOptions.length).toBe(3);
@@ -148,11 +128,9 @@ describe('CustomStageForm', () => {
       it('will only display valid stop events allowed for the selected start event', () => {
         let stopOptions = wrapper.find(sel.stopEvent).findAll('option');
         expect(stopOptions.at(0).html()).toEqual('<option value="">Select stop event</option>');
-        wrapper
-          .find(sel.startEvent)
-          .findAll('option')
-          .at(1)
-          .setSelected();
+
+        selectDropdownOption(wrapper, sel.startEvent, 1);
+
         Vue.nextTick(() => {
           stopOptions = wrapper.find(sel.stopEvent).findAll('option');
           [
@@ -181,14 +159,66 @@ describe('CustomStageForm', () => {
         it('will display the stop event label field if a label event is selected', () => {});
       });
     });
-    describe.skip('Add stage button', () => {
-      it('is enabled when all required fields are filled', () => {});
-      it('emits a `submit` event when clicked', () => {
+    describe('Add stage button', () => {
+      beforeEach(() => {
+        wrapper = createComponent({}, false);
+
+        selectDropdownOption(wrapper, sel.startEvent, 1);
+
+        Vue.nextTick(() => {
+          selectDropdownOption(wrapper, sel.stopEvent, 1);
+        });
+      });
+
+      it('is enabled when all required fields are filled', () => {
         const btn = wrapper.find(sel.submit);
-        expect(wrapper.emitted().submit).toBeUndefined();
-        btn.trigger('click');
-        expect(wrapper.emitted().submit).toBeTruthy();
-        expect(wrapper.emitted().submit.length).toBe(1);
+
+        expect(btn.attributes('disabled')).toBe('disabled');
+        wrapper.find(sel.name).setValue('Cool stage');
+
+        Vue.nextTick(() => {
+          expect(btn.attributes('disabled')).toBeUndefined();
+        });
+      });
+
+      describe('with all fields set', () => {
+        beforeEach(() => {
+          wrapper = createComponent({}, false);
+
+          selectDropdownOption(wrapper, sel.startEvent, 1);
+
+          Vue.nextTick(() => {
+            selectDropdownOption(wrapper, sel.stopEvent, 1);
+            wrapper.find(sel.name).setValue('Cool stage');
+          });
+        });
+
+        it('emits a `submit` event when clicked', () => {
+          const btn = wrapper.find(sel.submit);
+
+          expect(wrapper.emitted().submit).toBeUndefined();
+
+          btn.trigger('click');
+          expect(wrapper.emitted().submit).toBeTruthy();
+          expect(wrapper.emitted().submit.length).toBe(1);
+        });
+        it('`submit` event receives the latest data', () => {
+          const btn = wrapper.find(sel.submit);
+
+          expect(wrapper.emitted().submit).toBeUndefined();
+
+          const res = [
+            {
+              name: 'Cool stage',
+              startEvent: 'issue_created',
+              startEventLabel: '',
+              stopEvent: 'issue_stage_end',
+              stopEventLabel: '',
+            },
+          ];
+          btn.trigger('click');
+          expect(wrapper.emitted().submit[0]).toEqual(res);
+        });
       });
     });
   });
