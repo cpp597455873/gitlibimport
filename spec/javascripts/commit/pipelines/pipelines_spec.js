@@ -124,6 +124,115 @@ describe('Pipelines table in Commits and Merge requests', function() {
     });
   });
 
+  describe('run pipeline button', () => {
+    let pipelineCopy;
+
+    beforeEach(() => {
+      pipelineCopy = Object.assign({}, pipeline);
+    });
+
+    describe('when latest pipeline has detached flag and canRunPipeline is true', () => {
+      it('renders the run pipeline button', done => {
+        pipelineCopy.flags.detached_merge_request_pipeline = true;
+
+        mock.onGet('endpoint.json').reply(200, [pipelineCopy]);
+
+        vm = mountComponent(PipelinesTable, {
+          endpoint: 'endpoint.json',
+          helpPagePath: 'foo',
+          emptyStateSvgPath: 'foo',
+          errorStateSvgPath: 'foo',
+          autoDevopsHelpPath: 'foo',
+          canRunPipeline: true,
+        });
+
+        setTimeout(() => {
+          expect(vm.$el.querySelector('.js-run-mr-pipeline')).not.toBeNull();
+          done();
+        });
+      });
+    });
+
+    describe('when latest pipeline has detached flag and canRunPipeline is false', () => {
+      it('does not render the run pipeline button', done => {
+        pipelineCopy.flags.detached_merge_request_pipeline = true;
+
+        mock.onGet('endpoint.json').reply(200, [pipelineCopy]);
+
+        vm = mountComponent(PipelinesTable, {
+          endpoint: 'endpoint.json',
+          helpPagePath: 'foo',
+          emptyStateSvgPath: 'foo',
+          errorStateSvgPath: 'foo',
+          autoDevopsHelpPath: 'foo',
+          canRunPipeline: false,
+        });
+
+        setTimeout(() => {
+          expect(vm.$el.querySelector('.js-run-mr-pipeline')).toBeNull();
+          done();
+        });
+      });
+    });
+
+    describe('when latest pipeline does not have detached flag and canRunPipeline is true', () => {
+      it('does not render the run pipeline button', done => {
+        pipelineCopy.flags.detached_merge_request_pipeline = false;
+
+        mock.onGet('endpoint.json').reply(200, [pipelineCopy]);
+
+        vm = mountComponent(PipelinesTable, {
+          endpoint: 'endpoint.json',
+          helpPagePath: 'foo',
+          emptyStateSvgPath: 'foo',
+          errorStateSvgPath: 'foo',
+          autoDevopsHelpPath: 'foo',
+          canRunPipeline: true,
+        });
+
+        setTimeout(() => {
+          expect(vm.$el.querySelector('.js-run-mr-pipeline')).toBeNull();
+          done();
+        });
+      });
+    });
+
+    describe('on click', () => {
+      beforeEach(() => {
+        pipelineCopy.flags.detached_merge_request_pipeline = true;
+
+        mock.onGet('endpoint.json').reply(200, [pipelineCopy]);
+
+        vm = mountComponent(PipelinesTable, {
+          endpoint: 'endpoint.json',
+          helpPagePath: 'foo',
+          emptyStateSvgPath: 'foo',
+          errorStateSvgPath: 'foo',
+          autoDevopsHelpPath: 'foo',
+          canRunPipeline: true,
+        });
+      });
+
+      it('updates the loading state', done => {
+        mock.onPost('endpoint.json').reply(200);
+
+        setTimeout(() => {
+          vm.$el.querySelector('.js-run-mr-pipeline').click();
+
+          vm.$nextTick(() => {
+            expect(vm.state.isRunningMergeRequestPipeline).toBe(true);
+
+            setTimeout(() => {
+              expect(vm.state.isRunningMergeRequestPipeline).toBe(false);
+
+              done();
+            });
+          });
+        });
+      });
+    });
+  });
+
   describe('unsuccessfull request', () => {
     beforeEach(() => {
       mock.onGet('endpoint.json').reply(500, []);

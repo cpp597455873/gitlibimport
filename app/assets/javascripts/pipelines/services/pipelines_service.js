@@ -39,4 +39,8 @@ export default class PipelinesService {
   postAction(endpoint) {
     return axios.post(`${endpoint}.json`);
   }
+
+  runMRPipeline() {
+    return axios.post(this.endpoint);
+  }
 }
