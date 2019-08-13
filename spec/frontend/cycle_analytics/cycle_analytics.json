@@ -71,6 +71,20 @@
         "type": "simple",
         "can_be_start_event": true,
         "allowed_end_events": ["issue_first_mentioned_in_commit"]
+      },
+      {
+        "identifier": "issue_label_added",
+        "name": "Issue Label Added",
+        "type": "label",
+        "can_be_start_event": true,
+        "allowed_end_events": ["issue_closed", "issue_label_removed"]
+      },
+      {
+        "identifier": "issue_label_removed",
+        "name": "Issue Label Removed",
+        "type": "label",
+        "can_be_start_event": false,
+        "allowed_end_events": []
       }
     ],
     "stages": [

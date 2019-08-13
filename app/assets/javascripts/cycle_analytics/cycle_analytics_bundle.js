@@ -75,6 +75,12 @@ export default () => {
       // variable itself can be completely removed.
       // Follow up issue: https://gitlab.com/gitlab-org/gitlab-ce/issues/64490
       if (cycleAnalyticsEl.dataset.requestPath) this.fetchCycleAnalyticsData();
+
+      // groupLabels needed for label dropdown in the custom stages form
+      const groupLabels = cycleAnalyticsEl.dataset.groupLabels
+        ? JSON.parse(cycleAnalyticsEl.dataset.groupLabels)
+        : [];
+      this.store.setGroupLabels(groupLabels);
     },
     methods: {
       handleError() {

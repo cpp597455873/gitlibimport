@@ -1,8 +1,10 @@
 - @no_container = true
 - page_title "Cycle Analytics"
 - customisable_cycle_analytics = Feature.enabled?(:customisable_cycle_analytics_form)
+- group_labels =  @project.group && @project.group.labels ? @project.group.labels.to_json : nil
 
-#cycle-analytics{ class: container_class, "v-cloak" => "true", data: { request_path: project_cycle_analytics_path(@project) } }
+-# TODO: check new CA - might be able to get group other way
+#cycle-analytics{ class: container_class, "v-cloak" => "true", data: { group_labels: group_labels, request_path: project_cycle_analytics_path(@project) } }
   - if @cycle_analytics_no_data
     %banner{ "v-if" => "!isOverviewDialogDismissed",
       "documentation-link": help_page_path('user/project/cycle_analytics'),
@@ -84,4 +86,4 @@
                 %component{ ":is" => "currentStage.component", ":stage" => "currentStage", ":items" => "state.events" }
               - if customisable_cycle_analytics
                 -# %custom-stage-form{ "v-if" => "!isLoadingStage && isStageFormSelected", ":events" => "state.events" }
-                %custom-stage-form{ "v-if" => "!isLoadingStage && isStageFormSelected" }
+                %custom-stage-form{ "v-if" => "!isLoadingStage && isStageFormSelected", ":labels" => "state.groupLabels" }

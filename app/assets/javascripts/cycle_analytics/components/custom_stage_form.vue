@@ -2,6 +2,9 @@
 import { s__ } from '~/locale';
 import { GlButton, GlFormGroup, GlFormInput, GlFormSelect } from '@gitlab/ui';
 
+import LabelsSelector from './labels_selector.vue';
+
+const EVENT_TYPE_LABEL = 'label';
 const isStartEvent = ev => ev && ev.can_be_start_event;
 const eventToOption = ({ name: text = '', identifier: value = null }) => ({
   text,
@@ -19,34 +22,131 @@ const eventsByIdentifier = (events = [], targetIdentifier = []) => {
   return events.filter(({ identifier }) => targetIdentifier.indexOf(identifier) > -1);
 };
 
+const isLabelEvent = (labelEvents = [], ev = null) =>
+  ev && labelEvents.length && labelEvents.indexOf(ev) > 0;
+
+const mockLabels = [
+  {
+    id: 26,
+    title: 'Foo Label',
+    description: 'Foobar',
+    color: '#BADA55',
+    text_color: '#FFFFFF',
+  },
+  {
+    id: 27,
+    title: 'Foo::Bar',
+    description: 'Foobar',
+    color: '#0033CC',
+    text_color: '#FFFFFF',
+  },
+];
+
 export default {
   components: {
     GlButton,
     GlFormGroup,
     GlFormInput,
     GlFormSelect,
+    LabelsSelector,
   },
   props: {
     events: {
       type: Array,
+      // required: true,
+      required: false,
+      default: () => [
+        {
+          name: 'Issue created',
+          identifier: 'issue_created',
+          type: 'simple',
+          can_be_start_event: true,
+          allowed_end_events: ['issue_stage_end'],
+        },
+        {
+          name: 'Issue first mentioned in a commit',
+          identifier: 'issue_first_mentioned_in_commit',
+          type: 'simple',
+          can_be_start_event: false,
+          allowed_end_events: [],
+        },
+        {
+          name: 'Merge request created',
+          identifier: 'merge_request_created',
+          type: 'simple',
+          can_be_start_event: true,
+          allowed_end_events: ['merge_request_merged'],
+        },
+
+        {
+          name: 'Merge request first deployed to production',
+          identifier: 'merge_request_first_deployed_to_production',
+          type: 'simple',
+          can_be_start_event: false,
+          allowed_end_events: [],
+        },
+        {
+          name: 'Merge request last build finish time',
+          identifier: 'merge_request_last_build_finished',
+          type: 'simple',
+          can_be_start_event: false,
+          allowed_end_events: [],
+        },
+        {
+          name: 'Merge request last build start time',
+          identifier: 'merge_request_last_build_started',
+          type: 'simple',
+          can_be_start_event: true,
+          allowed_end_events: ['merge_request_last_build_finished'],
+        },
+        {
+          name: 'Merge request merged',
+          identifier: 'merge_request_merged',
+          type: 'simple',
+          can_be_start_event: true,
+          allowed_end_events: ['merge_request_first_deployed_to_production'],
+        },
+        {
+          name: 'Issue first mentioned in a commit',
+          identifier: 'code_stage_start',
+          type: 'simple',
+          can_be_start_event: true,
+          allowed_end_events: ['merge_request_created'],
+        },
+        {
+          name: 'Issue first associated with a milestone or issue first added to a board',
+          identifier: 'issue_stage_end',
+          type: 'simple',
+          can_be_start_event: false,
+          allowed_end_events: [],
+        },
+        {
+          name: 'Issue first associated with a milestone or issue first added to a board',
+          identifier: 'plan_stage_start',
+          type: 'simple',
+          can_be_start_event: true,
+          allowed_end_events: ['issue_first_mentioned_in_commit'],
+        },
+        {
+          identifier: 'issue_label_added',
+          name: 'Issue Label Added',
+          type: 'label',
+          can_be_start_event: true,
+          allowed_end_events: ['issue_closed', 'issue_label_removed'],
+        },
+        {
+          identifier: 'issue_label_removed',
+          name: 'Issue Label Removed',
+          type: 'label',
+          can_be_start_event: false,
+          allowed_end_events: [],
+        },
+      ],
+    },
+    labels: {
+      type: Array,
       required: true,
     },
-    // name: {
-    //   type: String,
-    //   default: null,
-    // },
-    // objectType: {
-    //   type: String,
-    //   default: null,
-    // },
-    // startEvent: {
-    //   type: String,
-    //   default: null,
-    // },
-    // stopEvent: {
-    //   type: String,
-    //   default: null,
-    // },
   },
   data() {
     return {
@@ -57,7 +157,9 @@ export default {
         startEventLabel: '',
         stopEvent: '',
         stopEventLabel: '',
+        labelEvents: [],
       },
+      selectedLabel: null,
     };
   },
   computed: {
@@ -77,17 +179,31 @@ export default {
     hasStartEvent() {
       return this.fields.startEvent;
     },
-    // startEventRequiresLabel() {},
-    // stopEventRequiresLabel() {},
+    startEventRequiresLabel() {
+      return isLabelEvent(this.fields.startEvent);
+    },
+    stopEventRequiresLabel() {
+      return isLabelEvent(this.fields.stopEvent);
+    },
     isComplete() {
       // TODO: need to factor in label field
       const requiredFields = [this.fields.startEvent, this.fields.stopEvent, this.fields.name];
       return requiredFields.every(fieldValue => fieldValue && fieldValue.length > 0);
     },
   },
+  mounted() {
+    this.labelEvents = this.events.filter(ev => ev.type === EVENT_TYPE_LABEL);
+
+    // eslint-disable-next-line no-new
+    // new LabelsSelect(this.$refs.labelSel);
+  },
   methods: {
     handleSave() {
       this.$emit('submit', this.fields);
+    },
+    handleSelectLabel(label) {
+      console.log('handleSelectLabel', label);
+      this.selectedLabel = label;
     },
   },
 };
@@ -97,6 +213,16 @@ export default {
     <div class="mb-1">
       <h4>{{ s__('CustomCycleAnalytics|New stage') }}</h4>
     </div>
+
+    <gl-form-group :label="s__('CustomCycleAnalytics|Start event label')">
+      <div class="row">
+        <labels-selector
+          :labels="labels"
+          :selected-label-id="selectedLabel"
+          @select-label="handleSelectLabel"
+        />
+      </div>
+    </gl-form-group>
     <gl-form-group :label="s__('CustomCycleAnalytics|Name')">
       <gl-form-input
         v-model="fields.name"
