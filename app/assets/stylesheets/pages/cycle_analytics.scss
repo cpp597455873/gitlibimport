@@ -174,14 +174,13 @@
     }
 
     // EE-specific start
-    .stage-ghost {
+    .stage-ghost.stage-nav-item {
       border: dashed 1px $border-color;
 
-      &:hover,
       &.active {
         font-weight: bold;
         background: $blue-50;
-        border-color: solid 1px $blue-300;
+        border: solid 1px $blue-300;
         box-shadow: inset 4px 0 0 0 $blue-500;
       }
     }
