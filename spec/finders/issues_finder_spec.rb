@@ -293,8 +293,9 @@ describe IssuesFinder do
             expect(issues).to contain_exactly(issue1, issue3, issue4)
           end
 
-          # The top-level filters get applied before the NOT, so no results to NOT on except the ones selected by
-          # the outer filter
+          # IssuableFinder first filters using the outer params (the ones not inside the `not` key.)
+          # Afterwards, it applies the `not` params to that resultset. This means that things inside the `not` param
+          # do not take precedence over the outer params with the same name.
           context 'shadowing the same outside param' do
             let(:params) { { label_name: label2.title, not: { label_name: label.title } } }
 

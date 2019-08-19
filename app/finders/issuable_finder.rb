@@ -63,18 +63,21 @@ class IssuableFinder
     ]
     end
 
-    def negatable_scalar_params
-      @negatable_scalar_params ||= scalar_params + %i[project_id group_id]
-    end
-
     def array_params
       @array_params ||= { label_name: [], assignee_username: [] }
     end
 
+    # This should not be used in controller strong params!
+    def negatable_scalar_params
+      @negatable_scalar_params ||= scalar_params + %i[project_id group_id]
+    end
+
+    # This should not be used in controller strong params!
     def negatable_array_params
       @negatable_array_params ||= array_params.keys.append(:iids)
     end
 
+    # This should not be used in controller strong params!
     def negatable_params
       @negatable_params ||= negatable_scalar_params + negatable_array_params
     end
@@ -371,17 +374,23 @@ class IssuableFinder
   # Negates all params found in `negatable_params`
   # rubocop: disable CodeReuse/ActiveRecord
   def by_negation(items)
-    return items unless params[:not].present?
+    # API endpoints send in `nil` values so we test if there are any non-nil
+    return items unless params[:not].present? && params[:not].values.any?
 
     params[:not].each do |(key, value)|
-      # These aren't negatable params themselves, but rather help other searches, so we skip them. They
-      # will be added into all the NOT searches.
+      # These aren't negatable params themselves, but rather help other searches, so we skip them.
+      # They will be added into all the NOT searches.
       next if %i[include_subgroups in].include?(key.to_sym)
       next unless self.class.negatable_params.include?(key.to_sym)
 
-      not_helpers = params.slice(:include_subgroups, :in).merge(params[:not].slice(:include_subgroups, :in))
+      # API endpoints send in `nil` values so let's skip those too...
+      next if value.nil?
 
+      # These are "helper" params that are required inside the NOT to get the right results. They usually come in
+      # at the top-level params, but if they do come in inside the `:not` params, they should take precedence.
+      not_helpers = params.slice(:include_subgroups, :in).merge(params[:not].slice(:include_subgroups, :in))
       not_params = { key => value }.with_indifferent_access.merge(not_helpers)
+
       items_to_negate = self.class.new(current_user, not_params).execute
 
       items = items.where.not(id: items_to_negate)
