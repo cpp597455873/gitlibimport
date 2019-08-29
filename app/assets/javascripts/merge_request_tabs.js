@@ -334,6 +334,7 @@ export default class MergeRequestTabs {
   mountPipelinesView() {
     const pipelineTableViewEl = document.querySelector('#commit-pipeline-table-view');
     const { CommitPipelinesTable, mrWidgetData } = gl;
+
     this.commitPipelinesTable = new CommitPipelinesTable({
       propsData: {
         endpoint: pipelineTableViewEl.dataset.endpoint,
@@ -343,7 +344,7 @@ export default class MergeRequestTabs {
         autoDevopsHelpPath: pipelineTableViewEl.dataset.helpAutoDevopsPath,
         canRunPipeline: true,
         projectId: pipelineTableViewEl.dataset.projectId,
-        mergeRequestId: mrWidgetData.iid,
+        mergeRequestId: mrWidgetData ? mrWidgetData.iid : null,
       },
     }).$mount();
 

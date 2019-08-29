@@ -1034,6 +1034,17 @@ describe API::MergeRequests do
   end
 
   describe 'POST /projects/:id/merge_requests/:merge_request_iid/pipelines' do
+    before do
+      allow_any_instance_of(Ci::Pipeline)
+        .to receive(:ci_yaml_file)
+        .and_return(YAML.dump({
+          rspec: {
+            script: 'ls',
+            only: ['merge_requests']
+          }
+        }))
+    end
+
     let(:project) do
       create(:project, :private, :repository,
         creator: user,
@@ -1042,8 +1053,6 @@ describe API::MergeRequests do
     end
 
     let(:merge_request) do
-      allow_any_instance_of(Ci::Pipeline).to receive(:ci_yaml_file).and_return(YAML.dump({ rspec: { script: 'ls', only: ['merge_requests'] } }))
-
       create(:merge_request, :with_detached_merge_request_pipeline,
         milestone: milestone1,
         author: user,
@@ -1073,7 +1082,7 @@ describe API::MergeRequests do
       let(:authenticated_user) { create(:user) }
 
       it 'responds with a blank 404' do
-        expect { request }.to change(Ci::Pipeline, :count).by(0)
+        expect { request }.not_to change(Ci::Pipeline, :count)
         expect(response).to have_gitlab_http_status(404)
       end
     end
@@ -1082,7 +1091,7 @@ describe API::MergeRequests do
       let(:merge_request_iid) { 777 }
 
       it 'responds with a blank 404' do
-        expect { request }.to change(Ci::Pipeline, :count).by(0)
+        expect { request }.not_to change(Ci::Pipeline, :count)
         expect(response).to have_gitlab_http_status(404)
       end
     end
