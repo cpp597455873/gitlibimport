@@ -36,6 +36,8 @@ module Gitlab
 
         RelationRenameService.add_new_associations(project_json)
 
+        reverse_pipelines_order
+
         project_json.to_json
       end
 
@@ -63,6 +65,10 @@ module Gitlab
         non_null_user_ids = @project.project_members.where.not(user_id: nil).select(:user_id)
 
         GroupMembersFinder.new(@project.group).execute.where.not(user_id: non_null_user_ids)
+      end
+
+      def reverse_pipelines_order
+        @project_json["ci_pipelines"].reverse!
       end
     end
   end
