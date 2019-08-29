@@ -43,6 +43,16 @@ export default {
       required: false,
       default: false,
     },
+    projectId: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    mergeRequestId: {
+      type: Number,
+      required: false,
+      default: null,
+    },
   },
 
   data() {
@@ -128,7 +138,10 @@ export default {
      *
      */
     onClickRunPipeline() {
-      eventHub.$emit('runMergeRequestPipeline');
+      eventHub.$emit('runMergeRequestPipeline', {
+        projectId: this.projectId,
+        mergeRequestId: this.mergeRequestId,
+      });
     },
   },
 };

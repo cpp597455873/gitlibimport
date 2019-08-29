@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import MockAdapter from 'axios-mock-adapter';
 import axios from '~/lib/utils/axios_utils';
+import Api from '~/api';
 import pipelinesTable from '~/commit/pipelines/pipelines_table.vue';
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
 
@@ -210,11 +211,13 @@ describe('Pipelines table in Commits and Merge requests', function() {
           errorStateSvgPath: 'foo',
           autoDevopsHelpPath: 'foo',
           canRunPipeline: true,
+          projectId: '5',
+          mergeRequestId: 3,
         });
       });
 
       it('updates the loading state', done => {
-        mock.onPost('endpoint.json').reply(200);
+        spyOn(Api, 'postMergeRequestPipeline').and.returnValue(Promise.resolve());
 
         setTimeout(() => {
           vm.$el.querySelector('.js-run-mr-pipeline').click();

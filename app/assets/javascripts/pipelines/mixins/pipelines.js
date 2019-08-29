@@ -171,11 +171,11 @@ export default {
      * Once the pipeline has been updated, we toggle back the
      * loading state and re-enable the run pipeline button
      */
-    runMergeRequestPipeline() {
+    runMergeRequestPipeline(options) {
       this.store.toggleIsRunningPipeline(true);
 
       this.service
-        .runMRPipeline()
+        .runMRPipeline(options)
         .then(() => this.updateTable())
         .catch(() => {
           createFlash(
