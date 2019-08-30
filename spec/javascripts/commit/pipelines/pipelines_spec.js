@@ -11,6 +11,13 @@ describe('Pipelines table in Commits and Merge requests', function() {
   let PipelinesTable;
   let mock;
   let vm;
+  const props = {
+    endpoint: 'endpoint.json',
+    helpPagePath: 'foo',
+    emptyStateSvgPath: 'foo',
+    errorStateSvgPath: 'foo',
+    autoDevopsHelpPath: 'foo',
+  };
 
   preloadFixtures(jsonFixtureName);
 
@@ -33,13 +40,7 @@ describe('Pipelines table in Commits and Merge requests', function() {
       beforeEach(function() {
         mock.onGet('endpoint.json').reply(200, []);
 
-        vm = mountComponent(PipelinesTable, {
-          endpoint: 'endpoint.json',
-          helpPagePath: 'foo',
-          emptyStateSvgPath: 'foo',
-          errorStateSvgPath: 'foo',
-          autoDevopsHelpPath: 'foo',
-        });
+        vm = mountComponent(PipelinesTable, props);
       });
 
       it('should render the empty state', function(done) {
@@ -55,13 +56,7 @@ describe('Pipelines table in Commits and Merge requests', function() {
     describe('with pipelines', () => {
       beforeEach(() => {
         mock.onGet('endpoint.json').reply(200, [pipeline]);
-        vm = mountComponent(PipelinesTable, {
-          endpoint: 'endpoint.json',
-          helpPagePath: 'foo',
-          emptyStateSvgPath: 'foo',
-          errorStateSvgPath: 'foo',
-          autoDevopsHelpPath: 'foo',
-        });
+        vm = mountComponent(PipelinesTable, props);
       });
 
       it('should render a table with the received pipelines', done => {
@@ -112,13 +107,7 @@ describe('Pipelines table in Commits and Merge requests', function() {
           done();
         });
 
-        vm = mountComponent(PipelinesTable, {
-          endpoint: 'endpoint.json',
-          helpPagePath: 'foo',
-          emptyStateSvgPath: 'foo',
-          errorStateSvgPath: 'foo',
-          autoDevopsHelpPath: 'foo',
-        });
+        vm = mountComponent(PipelinesTable, props);
 
         element.appendChild(vm.$el);
       });
@@ -138,14 +127,12 @@ describe('Pipelines table in Commits and Merge requests', function() {
 
         mock.onGet('endpoint.json').reply(200, [pipelineCopy]);
 
-        vm = mountComponent(PipelinesTable, {
-          endpoint: 'endpoint.json',
-          helpPagePath: 'foo',
-          emptyStateSvgPath: 'foo',
-          errorStateSvgPath: 'foo',
-          autoDevopsHelpPath: 'foo',
-          canRunPipeline: true,
-        });
+        vm = mountComponent(
+          PipelinesTable,
+          Object.assign({}, props, {
+            canRunPipeline: true,
+          }),
+        );
 
         setTimeout(() => {
           expect(vm.$el.querySelector('.js-run-mr-pipeline')).not.toBeNull();
@@ -160,14 +147,12 @@ describe('Pipelines table in Commits and Merge requests', function() {
 
         mock.onGet('endpoint.json').reply(200, [pipelineCopy]);
 
-        vm = mountComponent(PipelinesTable, {
-          endpoint: 'endpoint.json',
-          helpPagePath: 'foo',
-          emptyStateSvgPath: 'foo',
-          errorStateSvgPath: 'foo',
-          autoDevopsHelpPath: 'foo',
-          canRunPipeline: false,
-        });
+        vm = mountComponent(
+          PipelinesTable,
+          Object.assign({}, props, {
+            canRunPipeline: false,
+          }),
+        );
 
         setTimeout(() => {
           expect(vm.$el.querySelector('.js-run-mr-pipeline')).toBeNull();
@@ -182,14 +167,12 @@ describe('Pipelines table in Commits and Merge requests', function() {
 
         mock.onGet('endpoint.json').reply(200, [pipelineCopy]);
 
-        vm = mountComponent(PipelinesTable, {
-          endpoint: 'endpoint.json',
-          helpPagePath: 'foo',
-          emptyStateSvgPath: 'foo',
-          errorStateSvgPath: 'foo',
-          autoDevopsHelpPath: 'foo',
-          canRunPipeline: true,
-        });
+        vm = mountComponent(
+          PipelinesTable,
+          Object.assign({}, props, {
+            canRunPipeline: true,
+          }),
+        );
 
         setTimeout(() => {
           expect(vm.$el.querySelector('.js-run-mr-pipeline')).toBeNull();
@@ -204,16 +187,14 @@ describe('Pipelines table in Commits and Merge requests', function() {
 
         mock.onGet('endpoint.json').reply(200, [pipelineCopy]);
 
-        vm = mountComponent(PipelinesTable, {
-          endpoint: 'endpoint.json',
-          helpPagePath: 'foo',
-          emptyStateSvgPath: 'foo',
-          errorStateSvgPath: 'foo',
-          autoDevopsHelpPath: 'foo',
-          canRunPipeline: true,
-          projectId: '5',
-          mergeRequestId: 3,
-        });
+        vm = mountComponent(
+          PipelinesTable,
+          Object.assign({}, props, {
+            canRunPipeline: true,
+            projectId: '5',
+            mergeRequestId: 3,
+          }),
+        );
       });
 
       it('updates the loading state', done => {
@@ -240,13 +221,7 @@ describe('Pipelines table in Commits and Merge requests', function() {
     beforeEach(() => {
       mock.onGet('endpoint.json').reply(500, []);
 
-      vm = mountComponent(PipelinesTable, {
-        endpoint: 'endpoint.json',
-        helpPagePath: 'foo',
-        emptyStateSvgPath: 'foo',
-        errorStateSvgPath: 'foo',
-        autoDevopsHelpPath: 'foo',
-      });
+      vm = mountComponent(PipelinesTable, props);
     });
 
     it('should render error state', function(done) {
