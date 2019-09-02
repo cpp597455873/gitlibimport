@@ -1,7 +1,7 @@
 - remote = local_assigns.fetch(:remote, false)
 - link_project = local_assigns.fetch(:link_project, false)
 
-- if @snippets.exists?
+- if @snippets.total_count.positive?
   .snippets-list-holder
     %ul.content-list
       = render partial: 'shared/snippets/snippet', collection: @snippets, locals: { link_project: link_project }
