@@ -146,4 +146,76 @@ describe('Environments block', () => {
       });
     });
   });
+
+  describe('with a cluster', () => {
+    it('renders the cluster link', () => {
+      const cluster = {
+        name: 'the-cluster',
+        path: '/the-cluster-path',
+      };
+      vm = mountComponent(Component, {
+        deploymentStatus: {
+          status: 'last',
+          environment: Object.assign({}, environment, {
+            last_deployment: {
+              iid: 'deployment',
+              deployable: { build_path: 'bar' },
+              cluster,
+            },
+          }),
+        },
+        iconStatus: status,
+      });
+
+      expect(vm.$el.textContent.trim()).toContain('Cluster the-cluster was used.');
+
+      expect(vm.$el.querySelector('.js-job-cluster-link').getAttribute('href')).toEqual(
+        '/the-cluster-path',
+      );
+    });
+
+    describe('when the cluster is missing the path', () => {
+      it('renders the name without a link', () => {
+        const cluster = {
+          name: 'the-cluster',
+        };
+        vm = mountComponent(Component, {
+          deploymentStatus: {
+            status: 'last',
+            environment: Object.assign({}, environment, {
+              last_deployment: {
+                iid: 'deployment',
+                deployable: { build_path: 'bar' },
+                cluster,
+              },
+            }),
+          },
+          iconStatus: status,
+        });
+
+        expect(vm.$el.textContent.trim()).toContain('Cluster the-cluster was used.');
+
+        expect(vm.$el.querySelector('.js-job-cluster-link')).toBeNull();
+      });
+    });
+  });
+
+  describe('without a cluster', () => {
+    it('does not render a cluster link', () => {
+      vm = mountComponent(Component, {
+        deploymentStatus: {
+          status: 'last',
+          environment: Object.assign({}, environment, {
+            last_deployment: {
+              iid: 'deployment',
+              deployable: { build_path: 'bar' },
+            },
+          }),
+        },
+        iconStatus: status,
+      });
+
+      expect(vm.$el.querySelector('.js-job-cluster-link')).toBeNull();
+    });
+  });
 });
