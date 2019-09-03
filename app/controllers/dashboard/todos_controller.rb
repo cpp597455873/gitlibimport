@@ -2,6 +2,7 @@
 
 class Dashboard::TodosController < Dashboard::ApplicationController
   include ActionView::Helpers::NumberHelper
+  include PaginatedCollection
 
   before_action :authorize_read_project!, only: :index
   before_action :authorize_read_group!, only: :index
@@ -86,24 +87,11 @@ class Dashboard::TodosController < Dashboard::ApplicationController
     params.permit(:action_id, :author_id, :project_id, :type, :sort, :state, :group_id)
   end
 
-  # rubocop: disable CodeReuse/ActiveRecord
-  def redirect_out_of_range(todos)
-    total_pages =
-      if todo_params.except(:sort, :page).empty?
-        (current_user.todos_pending_count.to_f / todos.limit_value).ceil
-      else
-        todos.total_pages
-      end
-
-    return false if total_pages.zero?
-
-    out_of_range = todos.current_page > total_pages
-
-    if out_of_range
-      redirect_to url_for(safe_params.merge(page: total_pages, only_path: true))
+  def collection_page_count(collection)
+    if todo_params.except(:sort, :page).empty? # rubocop: disable CodeReuse/ActiveRecord
+      (current_user.todos_pending_count.to_f / collection.limit_value).ceil
+    else
+      collection.total_pages
     end
-
-    out_of_range
   end
-  # rubocop: enable CodeReuse/ActiveRecord
 end
