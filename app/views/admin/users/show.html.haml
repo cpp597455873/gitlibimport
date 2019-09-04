@@ -172,6 +172,7 @@
             = render partial: 'admin/users/user_deactivation_effects'
             %br
             %button.btn.btn-warning{ data: { 'gl-modal-action': 'deactivate',
+              content: '',
               url: deactivate_admin_user_path(@user),
               username: sanitize_name(@user.name) } }
               = s_('AdminUsers|Deactivate user')
@@ -195,6 +196,7 @@
             = render partial: 'admin/users/user_block_effects'
             %br
             %button.btn.btn-warning{ data: { 'gl-modal-action': 'block',
+              content: '',
               url: block_admin_user_path(@user),
               username: sanitize_name(@user.name) } }
               = s_('AdminUsers|Block user')

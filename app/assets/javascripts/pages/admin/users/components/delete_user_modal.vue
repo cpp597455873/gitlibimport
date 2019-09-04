@@ -1,4 +1,3 @@
-
 <script>
 import _ from 'underscore';
 import { GlModal, GlButton, GlFormInput } from '@gitlab/ui';
