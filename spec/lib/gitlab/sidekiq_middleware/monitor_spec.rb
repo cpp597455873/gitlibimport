@@ -12,7 +12,7 @@ describe Gitlab::SidekiqMiddleware::Monitor do
 
     it 'calls SidekiqMonitor' do
       expect(Gitlab::SidekiqMonitor.instance).to receive(:within_job)
-        .with('job-id', 'my-queue')
+        .with(RSpec::Mocks::Double, 'job-id', 'my-queue')
         .and_call_original
 
       expect { |blk| monitor.call(worker, job, queue, &blk) }.to yield_control
