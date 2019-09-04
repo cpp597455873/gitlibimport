@@ -1,7 +1,7 @@
 # Cycle Analytics
 
-> - Introduced prior to GitLab 12.2 at the project level.
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/12077) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.2 at the group level (enabled by feature flag `analytics`).
+> - Introduced prior to GitLab 12.3 at the project level.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/12077) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.3 at the group level (enabled by feature flag `cycle_analytics`).
 
 Cycle Analytics measures the time spent to go from an [idea to production] - also known
 as cycle time - for each of your projects. Cycle Analytics displays the median time for an idea to
@@ -18,14 +18,11 @@ calculates a separate median for each stage.
 
 Cycle Analytics is available:
 
-- From GitLab 12.2, at the group level in the analytics workspace at
+- From GitLab 12.3, at the group level in the analytics workspace at
   **Analytics > Cycle Analytics**. **(PREMIUM)**
 
   In the future, multiple groups will be selectable which will effectively make this an
   instance-level feature.
-
-  NOTE: **Note:**
-  Requires the [analytics workspace](index.md) to be enabled.
 
 - At the project level via **Project > Cycle Analytics**.
 
@@ -154,12 +151,12 @@ The current permissions on the Project Cycle Analytics dashboard are:
 You can [read more about permissions][permissions] in general.
 
 NOTE: **Note:**
-As of GitLab 12.2, the project-level page is deprecated. You should access
+As of GitLab 12.3, the project-level page is deprecated. You should access
 project-level Cycle Analytics from **Analytics > Cycle Analytics** in the top
 navigation bar. We will ensure that the same project-level functionality is available
 to CE users in the new analytics space.
 
-For Cycle Analytics functionality introduced in GitLab 12.2 and later:
+For Cycle Analytics functionality introduced in GitLab 12.3 and later:
 
 - Users must have Reporter access or above.
 - Features are available only on
