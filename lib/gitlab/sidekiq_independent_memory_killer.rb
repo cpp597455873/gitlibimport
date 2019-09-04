@@ -29,7 +29,7 @@ module Gitlab
     def initialize
       super
 
-      @enabled = false
+      @enabled = true
       reset_rss_balloon_started_time
     end
 
@@ -42,8 +42,6 @@ module Gitlab
     end
 
     def start_working
-      @enabled = true
-
       Sidekiq.logger.info(
         class: self.class.to_s,
         action: 'start',
