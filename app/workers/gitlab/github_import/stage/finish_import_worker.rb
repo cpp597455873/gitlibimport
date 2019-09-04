@@ -8,6 +8,8 @@ module Gitlab
         include GithubImport::Queue
         include StageMethods
 
+        sidekiq_options rss_increase_kb: 50
+
         # project - An instance of Project.
         def import(_, project)
           project.after_import

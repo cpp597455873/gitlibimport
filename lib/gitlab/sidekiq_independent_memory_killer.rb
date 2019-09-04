@@ -15,14 +15,6 @@ module Gitlab
     CHECK_INTERVAL_SECONDS = (ENV['SIDEKIQ_MEMORY_KILLER_CHECK_INTERVAL_SECONDS'] || 3).to_i
     # Wait 30 seconds for running jobs to finish during graceful shutdown
     SHUTDOWN_WAIT = (ENV['SIDEKIQ_MEMORY_KILLER_SHUTDOWN_WAIT'] || 30).to_i
-    # Whitelist these jobs from RSS contribution
-    # todo: statistic the better value. Maybe staging server is a good test environment?
-    # The value 50 means: contribute 50K rss increase per second. This is estimated from: 15M RSS increase when import running for 300 seconds.
-    WHILTELIST_JOBS = {
-      'RepositoryImportWorker' => { 'rss_time_factor' => 50 },
-      'Gitlab::GithubImport::Stage::ImportRepositoryWorker' => { 'rss_time_factor' => 50 },
-      'Gitlab::GithubImport::Stage::FinishImportWorker' => { 'rss_time_factor' => 50 }
-    }.freeze
 
     attr_reader :rss_balloon_started_at
 
@@ -177,16 +169,13 @@ module Gitlab
     end
 
     def rss_contribution(job)
-      worker_class_name = job[:worker_class].name
-      return 0 if WHILTELIST_JOBS[worker_class_name].nil?
+      rss_increase_kb_per_sec = job[:worker_class].sidekiq_options['rss_increase_kb']
+
+      return 0 if rss_increase_kb_per_sec.nil?
 
       time_elapsed = Time.now.to_i - job[:started_at]
-      rss_time_factor = WHILTELIST_JOBS[worker_class_name]['rss_time_factor']
 
-      Sidekiq.logger.info("time_elapsed: #{time_elapsed}")
-      Sidekiq.logger.info("rss_time_factor: #{rss_time_factor}")
-
-      rss_time_factor * time_elapsed
+      rss_increase_kb_per_sec * time_elapsed
     end
 
     def pid
