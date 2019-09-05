@@ -70,7 +70,7 @@ module Gitlab
 
       deadline = Time.now.to_i + GRACE_BALLOON_SECONDS
       # we try to finish as early as all jobs finished, so we retest that in loop
-      while enabled? && any_jobs? && Time.now.to_i < deadline
+      while Time.now.to_i < deadline
         # RSS go above hard limit and triggers forcible shutdown right away
         break if current_rss > hard_limit_rss
 
@@ -124,24 +124,24 @@ module Gitlab
       end
     end
 
-    def whitelist_jobs_rss_contribution
+    def rss_increase_by_jobs
       running_jobs = Gitlab::SidekiqMonitor.instance.jobs
 
       debug_whitelist_job = {}
       result = 0
       running_jobs.each do |jid, job|
-        result += rss_contribution(job)
-        debug_whitelist_job[jid] = job if rss_contribution(job) > 0
+        result += rss_increase_by_job(job)
+        debug_whitelist_job[jid] = job if rss_increase_by_job(job) > 0
       end
 
       Sidekiq.logger.info("running_jobs: #{running_jobs}")
       Sidekiq.logger.info("debug_whitelist_job: #{debug_whitelist_job}")
-      Sidekiq.logger.info("whitelist_jobs_rss_contribution: #{result}")
+      Sidekiq.logger.info("rss_increase_by_jobs: #{result}")
 
       result
     end
 
-    def rss_contribution(job)
+    def rss_increase_by_job(job)
       rss_increase_kb_per_sec = job[:worker_class].sidekiq_options['rss_increase_kb']
 
       return 0 if rss_increase_kb_per_sec.nil?
