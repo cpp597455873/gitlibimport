@@ -50,4 +50,38 @@ describe IssueEntity do
       end
     end
   end
+
+  context 'when issue got duplicated' do
+    let(:private_project) { create(:project, :private) }
+    let(:member) { create(:user) }
+    let(:non_member) { create(:user) }
+    let(:issue) { create(:issue, project: project) }
+    let(:new_issue) { create(:issue, project: private_project) }
+
+    before do
+      project.add_developer(member)
+      private_project.add_developer(member)
+      Issues::DuplicateService.new(project, member).execute(issue, new_issue)
+    end
+
+    context 'when user cannot read new issue' do
+      it 'does not return duplicated_to_id' do
+        request = double('request', current_user: non_member)
+
+        response = described_class.new(issue, request: request).as_json
+
+        expect(response[:duplicated_to_id]).to be_nil
+      end
+    end
+
+    context 'when user can read target project' do
+      it 'returns duplicated duplicated_to_id' do
+        request = double('request', current_user: member)
+
+        response = described_class.new(issue, request: request).as_json
+
+        expect(response[:duplicated_to_id]).to eq(issue.duplicated_to_id)
+      end
+    end
+  end
 end

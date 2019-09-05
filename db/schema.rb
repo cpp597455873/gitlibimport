@@ -1777,7 +1777,7 @@ ActiveRecord::Schema.define(version: 2019_09_02_160015) do
     t.integer "state_id", limit: 2
     t.string "service_desk_reply_to"
     t.integer "weight"
-    t.bigint "duplicated_to_id"
+    t.integer "duplicated_to_id"
     t.index ["author_id"], name: "index_issues_on_author_id"
     t.index ["closed_by_id"], name: "index_issues_on_closed_by_id"
     t.index ["confidential"], name: "index_issues_on_confidential"
@@ -3895,6 +3895,7 @@ ActiveRecord::Schema.define(version: 2019_09_02_160015) do
   add_foreign_key "issue_links", "issues", column: "target_id", name: "fk_e71bb44f1f", on_delete: :cascade
   add_foreign_key "issue_metrics", "issues", on_delete: :cascade
   add_foreign_key "issue_tracker_data", "services", on_delete: :cascade
+  add_foreign_key "issues", "issues", column: "duplicated_to_id", name: "fk_9c4516d665", on_delete: :nullify
   add_foreign_key "issues", "issues", column: "moved_to_id", name: "fk_a194299be1", on_delete: :nullify
   add_foreign_key "issues", "milestones", name: "fk_96b1dd429c", on_delete: :nullify
   add_foreign_key "issues", "projects", name: "fk_899c8f3231", on_delete: :cascade
