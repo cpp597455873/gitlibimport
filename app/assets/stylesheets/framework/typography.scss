@@ -67,6 +67,21 @@
     max-height: calc(100vh - 100px);
   }
 
+  details {
+
+    summary {
+      margin-bottom: $gl-padding;
+    }
+
+    *:first-child:not(summary) {
+      margin-top: $gl-padding;
+    }
+
+    *:last-child {
+      margin-bottom: $gl-padding;
+    }
+  }
+
   // Single code lines should wrap
   code {
     font-family: $monospace-font;
