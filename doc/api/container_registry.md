@@ -255,7 +255,7 @@ This action does not delete blobs. In order to delete them and recycle disk spac
 [run the garbage collection](https://docs.gitlab.com/omnibus/maintenance/README.html#removing-unused-layers-not-referenced-by-manifests).
 
 NOTE: **Note:**
-Since version 10.3, now individual tags are being deleted.
+Since version 10.3, individual tags are deleted.
 Check the [discussion](https://gitlab.com/gitlab-org/gitlab-ce/issues/21405) for more.
 
 Examples:
