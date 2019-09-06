@@ -38,19 +38,22 @@ module Gitlab
         begin
           check_rss
           sleep(CHECK_INTERVAL_SECONDS)
-        rescue StandardError => e
-          Sidekiq.logger.warn("Error from #{self.class}##{__method__}: #{e.message}")
+        rescue Exception => e # rubocop:disable Lint/RescueException
+          Sidekiq.logger.warn(
+            class: self.class.to_s,
+            message: "Exception from #{self.class}##{__method__}: #{e.message}"
+          )
         end
       end
+
+      Sidekiq.logger.warn(
+        class: self.class.to_s,
+        action: 'stop',
+        message: "Stopping SidekiqIndependentMemoryKiller Daemon. pid: #{pid}"
+      )
     end
 
     def stop_working
-      Sidekiq.logger.info(
-        class: self.class.to_s,
-        action: 'stop',
-        message: 'Stopping SidekiqIndependentMemoryKiller Daemon'
-      )
-
       @enabled = false
     end
 
@@ -59,11 +62,7 @@ module Gitlab
     end
 
     def check_rss
-      Sidekiq.logger.info(
-        class: self.class.to_s,
-        action: 'check_rss',
-        message: "Checking RSS for Sidekiq worker pid(#{pid}) current_rss(#{current_rss})"
-      )
+      current_rss = get_rss
 
       # everything is within limit
       return if current_rss < soft_limit_rss && current_rss < hard_limit_rss
@@ -77,7 +76,9 @@ module Gitlab
         # RSS go below the limit
         return if current_rss < soft_limit_rss
 
-        sleep(CHECK_INTERVAL) # do we want to check more frequently, such as 500ms?
+        sleep(CHECK_INTERVAL_SECONDS) # do we want to check more frequently, such as 500ms?
+
+        current_rss = get_rss
       end
 
       # Then, tell Sidekiq to stop fetching new jobs.
@@ -96,7 +97,7 @@ module Gitlab
       signal_pgroup(Sidekiq.options[:timeout] + 2, 'SIGKILL', 'die')
     end
 
-    def current_rss
+    def get_rss
       output, status = Gitlab::Popen.popen(%W(ps -o rss= -p #{pid}), Rails.root.to_s)
       return 0 unless status.zero?
 
@@ -113,7 +114,7 @@ module Gitlab
 
     def signal_and_wait(time, signal, explanation)
       Sidekiq.logger.warn("sending Sidekiq worker PID-#{pid} #{signal} (#{explanation}). Then wait at most #{time} seconds.")
-      Process.kill(signal, Process.pid)
+      Process.kill(signal, pid)
 
       deadline = Time.now + time
 
@@ -124,19 +125,32 @@ module Gitlab
       end
     end
 
+    def signal_pgroup(time, signal, explanation)
+      # [TODO] I think `Process.getpgrp == pid` is always true. Is not it?
+      return signal_and_wait(time, signal, explanation) unless Process.getpgrp == pid
+
+      Sidekiq.logger.warn(
+        class: self.class.to_s,
+        signal: signal,
+        message: "waiting #{time} seconds before sending Sidekiq worker PID-#{pid} #{signal} (#{explanation})"
+      )
+      sleep(time)
+
+      Sidekiq.logger.warn(
+        class: self.class.to_s,
+        signal: signal,
+        message: "sending Sidekiq worker PID-#{pid} #{signal} (#{explanation})"
+      )
+      Process.kill(signal, 0)
+    end
+
     def rss_increase_by_jobs
       running_jobs = Gitlab::SidekiqMonitor.instance.jobs
 
-      debug_whitelist_job = {}
       result = 0
       running_jobs.each do |jid, job|
         result += rss_increase_by_job(job)
-        debug_whitelist_job[jid] = job if rss_increase_by_job(job) > 0
       end
-
-      Sidekiq.logger.info("running_jobs: #{running_jobs}")
-      Sidekiq.logger.info("debug_whitelist_job: #{debug_whitelist_job}")
-      Sidekiq.logger.info("rss_increase_by_jobs: #{result}")
 
       result
     end
