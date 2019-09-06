@@ -433,9 +433,7 @@ describe('Issuable output', () => {
   });
 
   describe('requestTemplatesAndShowForm', () => {
-    beforeEach(() => {
-      spyOn(vm, 'updateAndShowForm');
-    });
+    beforeEach(() => spyOn(vm, 'updateAndShowForm'));
 
     it('shows the form if template names request is successful', done => {
       const mockData = [{ name: 'Bug' }];
