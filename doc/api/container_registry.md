@@ -256,7 +256,7 @@ This action does not delete blobs. In order to delete them and recycle disk spac
 
 NOTE: **Note:**
 Since version 10.3, individual tags are deleted.
-Check the [discussion](https://gitlab.com/gitlab-org/gitlab-ce/issues/21405) for more.
+For more details, see the [discussion](https://gitlab.com/gitlab-org/gitlab-ce/issues/21405).
 
 Examples:
 
