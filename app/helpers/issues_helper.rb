@@ -150,11 +150,11 @@ module IssuesHelper
       can?(current_user, :create_merge_request_in, @project)
   end
 
-  def issue_closed_label(issue, current_user)
+  def issue_closed_label(issue, current_user, css_class: '')
     if issue.moved? && can?(current_user, :read_issue, issue.moved_to)
-      closed_label_with_link(issue, 'moved')
+      closed_label_with_link(issue, 'moved', css_class)
     elsif issue.duplicated? && can?(current_user, :read_issue, issue.duplicated_to)
-      closed_label_with_link(issue, 'duplicated')
+      closed_label_with_link(issue, 'duplicated', css_class)
     else
       _("Closed")
     end
@@ -162,11 +162,11 @@ module IssuesHelper
 
   private
 
-  def closed_label_with_link(issue, action)
+  def closed_label_with_link(issue, action, css_class)
     related_issue = issue.try(:"#{action}_to")
     return _("Closed") unless related_issue
 
-    link_start = "<a href=\"#{issue_path(related_issue)}\" class=\"text-white text-underline\">".html_safe
+    link_start = "<a href=\"#{issue_path(related_issue)}\" class=\"#{css_class}\">".html_safe
     link_end = '</a>'.html_safe
 
     s_('IssuableStatus|Closed (%{link_start}%{action}%{link_end})').html_safe %

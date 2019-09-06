@@ -196,10 +196,10 @@ describe IssuesHelper do
       end
     end
 
-    shared_examples 'successfully displays label with linked issue' do |action|
-      let(:label) { "Closed (<a href=\"/#{new_issue.project.full_path}/issues/#{new_issue.iid}\" class=\"text-white text-underline\">#{action}</a>)" }
+    shared_examples 'successfully displays label with linked issue and css class' do |action|
+      let(:label) { "Closed (<a href=\"/#{new_issue.project.full_path}/issues/#{new_issue.iid}\" class=\"#{css_class}\">#{action}</a>)" }
 
-      it { expect(helper.issue_closed_label(issue, user)).to match(label) }
+      it { expect(helper.issue_closed_label(issue, user, css_class: css_class)).to match(label) }
     end
 
     shared_examples 'successfully displays label without linked issue' do
@@ -218,9 +218,10 @@ describe IssuesHelper do
       end
 
       context 'when user has permission to see new issue' do
-        let(:user) { project.owner }
+        let(:user)      { project.owner }
+        let(:css_class) { 'text-white text-underline' }
 
-        it_behaves_like 'successfully displays label with linked issue', 'moved'
+        it_behaves_like 'successfully displays label with linked issue and css class', 'moved'
       end
 
       context 'when user has no permission to see new issue' do
@@ -236,9 +237,10 @@ describe IssuesHelper do
       end
 
       context 'when user has permission to see new issue' do
-        let(:user) { project.owner }
+        let(:user)      { project.owner }
+        let(:css_class) { 'text-white text-underline' }
 
-        it_behaves_like 'successfully displays label with linked issue', 'duplicated'
+        it_behaves_like 'successfully displays label with linked issue and css class', 'duplicated'
       end
 
       context 'when user has no permission to see new issue' do
