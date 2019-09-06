@@ -124,6 +124,7 @@ describe('Pipelines table in Commits and Merge requests', function() {
     describe('when latest pipeline has detached flag and canRunPipeline is true', () => {
       it('renders the run pipeline button', done => {
         pipelineCopy.flags.detached_merge_request_pipeline = true;
+        pipelineCopy.flags.merge_request_pipeline = true;
 
         mock.onGet('endpoint.json').reply(200, [pipelineCopy]);
 
@@ -144,6 +145,7 @@ describe('Pipelines table in Commits and Merge requests', function() {
     describe('when latest pipeline has detached flag and canRunPipeline is false', () => {
       it('does not render the run pipeline button', done => {
         pipelineCopy.flags.detached_merge_request_pipeline = true;
+        pipelineCopy.flags.merge_request_pipeline = true;
 
         mock.onGet('endpoint.json').reply(200, [pipelineCopy]);
 
@@ -164,6 +166,7 @@ describe('Pipelines table in Commits and Merge requests', function() {
     describe('when latest pipeline does not have detached flag and canRunPipeline is true', () => {
       it('does not render the run pipeline button', done => {
         pipelineCopy.flags.detached_merge_request_pipeline = false;
+        pipelineCopy.flags.merge_request_pipeline = false;
 
         mock.onGet('endpoint.json').reply(200, [pipelineCopy]);
 
@@ -171,6 +174,27 @@ describe('Pipelines table in Commits and Merge requests', function() {
           PipelinesTable,
           Object.assign({}, props, {
             canRunPipeline: true,
+          }),
+        );
+
+        setTimeout(() => {
+          expect(vm.$el.querySelector('.js-run-mr-pipeline')).toBeNull();
+          done();
+        });
+      });
+    });
+
+    describe('when latest pipeline does not have detached flag and merge_request_pipeline is true', () => {
+      it('does not render the run pipeline button', done => {
+        pipelineCopy.flags.detached_merge_request_pipeline = false;
+        pipelineCopy.flags.merge_request_pipeline = true;
+
+        mock.onGet('endpoint.json').reply(200, [pipelineCopy]);
+
+        vm = mountComponent(
+          PipelinesTable,
+          Object.assign({}, props, {
+            canRunPipeline: false,
           }),
         );
 

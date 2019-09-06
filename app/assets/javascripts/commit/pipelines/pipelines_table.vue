@@ -51,7 +51,7 @@ export default {
     mergeRequestId: {
       type: Number,
       required: false,
-      default: null,
+      default: 0,
     },
   },
 
@@ -84,14 +84,19 @@ export default {
       return this.canRunPipeline && this.latestPipelineDetachedFlag;
     },
     /**
-     * Gets the `detached_merge_request_pipeline` value from the first
+     * Checks if either `detached_merge_request_pipeline` or
+     * `merge_request_pipeline` are tru in the first
      * object in the pipelines array.
      *
-     * @returns {Boolean|undefined}
+     * @returns {Boolean}
      */
     latestPipelineDetachedFlag() {
       const latest = this.state.pipelines[0];
-      return latest && latest.flags && latest.flags.detached_merge_request_pipeline;
+      return (
+        latest &&
+        latest.flags &&
+        (latest.flags.detached_merge_request_pipeline || latest.flags.merge_request_pipeline)
+      );
     },
     /**
      * When we are on Desktop and the button is visible
