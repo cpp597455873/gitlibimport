@@ -1782,7 +1782,7 @@ ActiveRecord::Schema.define(version: 2019_09_02_160015) do
     t.index ["closed_by_id"], name: "index_issues_on_closed_by_id"
     t.index ["confidential"], name: "index_issues_on_confidential"
     t.index ["description"], name: "index_issues_on_description_trigram", opclass: :gin_trgm_ops, using: :gin
-    t.index ["duplicated_to_id"], name: "index_issues_on_duplicated_to_id"
+    t.index ["duplicated_to_id"], name: "index_issues_on_duplicated_to_id", where: "(duplicated_to_id IS NOT NULL)"
     t.index ["milestone_id"], name: "index_issues_on_milestone_id"
     t.index ["moved_to_id"], name: "index_issues_on_moved_to_id", where: "(moved_to_id IS NOT NULL)"
     t.index ["project_id", "created_at", "id", "state"], name: "index_issues_on_project_id_and_created_at_and_id_and_state"

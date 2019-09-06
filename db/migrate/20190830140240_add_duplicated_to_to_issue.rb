@@ -10,7 +10,7 @@ class AddDuplicatedToToIssue < ActiveRecord::Migration[5.2]
   def up
     add_column :issues, :duplicated_to_id, :integer unless duplicated_to_id_exists?
     add_concurrent_foreign_key :issues, :issues, column: :duplicated_to_id, on_delete: :nullify
-    add_concurrent_index :issues, :duplicated_to_id
+    add_concurrent_index :issues, :duplicated_to_id, where: 'duplicated_to_id IS NOT NULL'
   end
 
   def down
