@@ -16,6 +16,7 @@
       "oneOf": [{ "type": "null" }, { "$ref": "user/basic.json" }]
     },
     "milestone": { "type": "string" },
+    "commit_path": { "type": "string" },
     "assets": {
       "required": ["count", "links", "sources"],
       "properties": {

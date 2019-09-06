@@ -1232,7 +1232,7 @@ module API
       expose :commit, using: Entities::Commit, if: lambda { |_, _| can_download_code? }
       expose :upcoming_release?, as: :upcoming_release
       expose :milestone, using: Entities::Milestone, if: -> (release, _) { release.milestone.present? }
-
+      expose :commit_path
       expose :assets do
         expose :assets_count, as: :count do |release, _|
           assets_to_exclude = can_download_code? ? [] : [:sources]
@@ -1248,6 +1248,10 @@ module API
 
       def can_download_code?
         Ability.allowed?(options[:current_user], :download_code, object.project)
+      end
+
+      def commit_path
+        Gitlab::Routing.url_helpers.project_commit_url(object.project, object.commit.id)
       end
     end
 
