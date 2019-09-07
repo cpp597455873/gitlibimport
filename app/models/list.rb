@@ -13,6 +13,7 @@ class List < ApplicationRecord
   validates :label, :position, presence: true, if: :label?
   validates :label_id, uniqueness: { scope: :board_id }, if: :label?
   validates :position, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, if: :movable?
+  validates :max_issue_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
   before_destroy :can_be_destroyed
 
